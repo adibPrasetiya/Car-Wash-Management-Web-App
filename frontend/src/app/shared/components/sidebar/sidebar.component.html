@@ -1,0 +1,78 @@
+<aside class="sidebar">
+  <!-- Logo Section -->
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon">
+        <i class="fas fa-car text-orange"></i>
+      </div>
+      <div class="logo-text">
+        <h3 class="logo-title">Carwash</h3>
+        <p class="logo-subtitle">Explorer</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar-nav">
+    <ul class="nav-list">
+      <ng-container *ngFor="let item of menuItems">
+        <!-- Menu Item with Children -->
+        <li class="nav-item" *ngIf="item.children && item.children.length > 0">
+          <div class="nav-link parent-menu"
+               [class.active]="item.isActive"
+               [class.expanded]="item.isExpanded"
+               (click)="toggleSubmenu(item)">
+            <div class="nav-content">
+              <i [class]="item.icon" class="nav-icon"></i>
+              <span class="nav-text">{{ item.label }}</span>
+            </div>
+            <i class="fas fa-chevron-right submenu-arrow"
+               [class.rotated]="item.isExpanded"></i>
+          </div>
+
+          <!-- Submenu -->
+          <ul class="submenu" [class.expanded]="item.isExpanded">
+            <li class="submenu-item" *ngFor="let child of item.children">
+              <a [href]="child.route"
+                 class="submenu-link"
+                 [class.active]="child.isActive"
+                 (click)="setActive(child)">
+                <i [class]="child.icon" class="submenu-icon"></i>
+                <span class="submenu-text">{{ child.label }}</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Menu Item without Children -->
+        <li class="nav-item" *ngIf="!item.children || item.children.length === 0">
+          <a [href]="item.route"
+             class="nav-link"
+             [class.active]="item.isActive"
+             (click)="setActive(item)">
+            <div class="nav-content">
+              <i [class]="item.icon" class="nav-icon"></i>
+              <span class="nav-text">{{ item.label }}</span>
+            </div>
+          </a>
+        </li>
+      </ng-container>
+    </ul>
+  </nav>
+
+  <!-- Bottom Section -->
+  <div class="sidebar-footer">
+    <div class="upgrade-card">
+      <div class="upgrade-icon">
+        <i class="fas fa-crown"></i>
+      </div>
+      <div class="upgrade-content">
+        <h4 class="upgrade-title">Upgrade Pro</h4>
+        <p class="upgrade-text">Get access to premium features</p>
+      </div>
+      <button class="upgrade-btn">
+        <i class="fas fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</aside>

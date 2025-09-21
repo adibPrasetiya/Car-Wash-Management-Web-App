@@ -1,0 +1,146 @@
+<div class="min-vh-100 d-flex">
+  <!-- Left Panel - Branding -->
+  <div class="col-md-6 d-none d-md-flex bg-orange position-relative overflow-hidden">
+    <div class="d-flex flex-column justify-content-center align-items-center w-100 h-100 p-5 text-white position-relative z-2">
+      <div class="branding-content">
+        <!-- Logo and Brand -->
+        <div class="text-center mb-5">
+          <div class="bg-white rounded-circle p-3 d-inline-flex mb-3 logo-container">
+            <i class="fas fa-car text-orange" style="font-size: 2rem;"></i>
+          </div>
+          <h2 class="fw-bold mb-2">Carwash Explorer</h2>
+          <p class="mb-0 opacity-90">Sistem Manajemen Cuci Mobil Terdepan</p>
+        </div>
+
+        <!-- Illustration Area -->
+        <div class="text-center mb-4">
+          <div class="illustration-container">
+            <i class="fas fa-user-tie text-white opacity-75" style="font-size: 6rem;"></i>
+          </div>
+        </div>
+
+        <!-- Features List -->
+        <div class="features-list text-center">
+          <div class="feature-item mb-3">
+            <i class="fas fa-check-circle me-2"></i>
+            <span>Manajemen Pelanggan</span>
+          </div>
+          <div class="feature-item mb-3">
+            <i class="fas fa-check-circle me-2"></i>
+            <span>Sistem Pembayaran</span>
+          </div>
+          <div class="feature-item">
+            <i class="fas fa-check-circle me-2"></i>
+            <span>Laporan Komprehensif</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Elements -->
+      <div class="floating-elements">
+        <div class="floating-element element-1">
+          <i class="fas fa-soap"></i>
+        </div>
+        <div class="floating-element element-2">
+          <i class="fas fa-spray-can"></i>
+        </div>
+        <div class="floating-element element-3">
+          <i class="fas fa-water"></i>
+        </div>
+        <div class="floating-element element-4">
+          <i class="fas fa-car-wash"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel - Login Form -->
+  <div class="col-12 col-md-6 d-flex flex-column justify-content-center p-4 p-md-5">
+    <div class="w-100" style="max-width: 400px; margin: 0 auto;">
+      <!-- Welcome Text -->
+      <div class="text-center mb-5">
+        <h1 class="h3 fw-bold text-dark mb-3">Selamat Datang!</h1>
+        <p class="text-muted">Silakan masuk ke akun Anda untuk melanjutkan</p>
+      </div>
+
+      <!-- Login Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="needs-validation" novalidate>
+        <!-- Username Field -->
+        <div class="mb-4">
+          <label for="username" class="form-label fw-semibold">
+            <i class="fas fa-user me-2 text-orange"></i>Username
+          </label>
+          <input
+            type="text"
+            id="username"
+            class="form-control form-control-lg"
+            [class.is-invalid]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched"
+            formControlName="username"
+            placeholder="Masukkan username Anda"
+            autocomplete="username"
+          >
+          <div class="invalid-feedback" *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+            <small *ngIf="loginForm.get('username')?.errors?.['required']">Username wajib diisi</small>
+          </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="mb-4">
+          <label for="password" class="form-label fw-semibold">
+            <i class="fas fa-lock me-2 text-orange"></i>Password
+          </label>
+          <div class="position-relative">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              id="password"
+              class="form-control form-control-lg pe-5"
+              [class.is-invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+              formControlName="password"
+              placeholder="Masukkan password Anda"
+              autocomplete="current-password"
+            >
+            <button
+              type="button"
+              class="btn position-absolute top-50 end-0 translate-middle-y border-0 bg-transparent"
+              (click)="togglePasswordVisibility()"
+            >
+              <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'" class="text-muted"></i>
+            </button>
+          </div>
+          <div class="invalid-feedback" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+            <small *ngIf="loginForm.get('password')?.errors?.['required']">Password wajib diisi</small>
+          </div>
+        </div>
+
+        <!-- Remember Me & Forgot Password -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="rememberMe" formControlName="rememberMe">
+            <label class="form-check-label text-muted" for="rememberMe">
+              Ingat saya
+            </label>
+          </div>
+          <a href="#" class="text-orange text-decoration-none small">Lupa password?</a>
+        </div>
+
+        <!-- Login Button -->
+        <button
+          type="submit"
+          class="btn btn-orange btn-lg w-100 py-3 mb-4"
+          [disabled]="loginForm.invalid || isLoading"
+        >
+          <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+          <i *ngIf="!isLoading" class="fas fa-sign-in-alt me-2"></i>
+          {{ isLoading ? 'Memproses...' : 'Masuk' }}
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <div class="text-center">
+        <p class="text-muted small mb-0">
+          © 2024 Carwash Management System. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

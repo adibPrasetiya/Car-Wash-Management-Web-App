@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id             Int             @id @default(autoincrement())
+  name           String
+  phone          String?         @unique
+  email          String?         @unique
+  vehicles       Vehicle[]
+  loyaltyRecords LoyaltyRecord[]
+  transactions   Transaction[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Vehicle {
+  id             Int             @id @default(autoincrement())
+  clientId       Int?
+  client         Client?         @relation(fields: [clientId], references: [id])
+  plate          String?
+  type           String // "car" | "motorcycle"
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  transactions   Transaction[]
+  loyaltyRecords LoyaltyRecord[]
+}
+
+model ServicePackage {
+  id          Int               @id @default(autoincrement())
+  name        String
+  description String?
+  price       Decimal           @db.Decimal(10, 2)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  items       TransactionItem[]
+}
+
+model ServiceType {
+  id          Int               @id @default(autoincrement())
+  name        String
+  description String?
+  price       Decimal           @db.Decimal(10, 2)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  items       TransactionItem[]
+}
+
+model Transaction {
+  transactionId     String            @id // TRX + UUID format as primary key
+  transactionNumber String            @unique // U0001, P0001 format
+  clientId          Int?
+  client            Client?           @relation(fields: [clientId], references: [id])
+  clientName        String            // Store client name for easier access
+  clientType        String            // "U" = registered, "P" = guest
+  vehicleId         Int?
+  vehicle           Vehicle?          @relation(fields: [vehicleId], references: [id])
+  vehicleType       String            // "car", "motorcycle", "truck"
+  plateNumber       String?
+  serviceType       String            // Description of service
+  totalAmount       Decimal           @db.Decimal(10, 2)
+  status            String            // "pending", "in_progress", "completed", "cancelled"
+  cashierId         String            // ID of cashier who handled transaction
+  cashierName       String            // Name of cashier
+  notes             String?           @db.Text
+  date              DateTime          @default(now())
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  items             TransactionItem[]
+}
+
+model TransactionItem {
+  id               Int             @id @default(autoincrement())
+  transactionId    String
+  transaction      Transaction     @relation(fields: [transactionId], references: [transactionId])
+  servicePackageId Int?
+  servicePackage   ServicePackage? @relation(fields: [servicePackageId], references: [id])
+  serviceTypeId    Int?
+  serviceType      ServiceType?    @relation(fields: [serviceTypeId], references: [id])
+  price            Decimal         @db.Decimal(10, 2)
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  username  String   @unique
+  password  String
+  role      String // "owner" | "cashier"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LoyaltyRecord {
+  id         Int      @id @default(autoincrement())
+  clientId   Int?
+  client     Client?  @relation(fields: [clientId], references: [id])
+  vehicleId  Int?
+  vehicle    Vehicle? @relation(fields: [vehicleId], references: [id])
+  count      Int      @default(0)
+  rewardType String // "discount" | "free" | null
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}

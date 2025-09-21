@@ -1,0 +1,348 @@
+/* Activation Component Styles - Consistent with Login Component */
+
+/* Floating Elements */
+.floating-elements {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.floating-element {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.2);
+  animation: float 6s ease-in-out infinite;
+}
+
+.floating-element i {
+  font-size: 1.5rem;
+}
+
+/* Element positioning now handled by ngFor binding */
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+  66% {
+    transform: translateY(5px) rotate(-3deg);
+  }
+}
+
+/* Activation Card */
+.activation-card {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 100%;
+  max-width: 550px;
+}
+
+.activation-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+/* Logo Container */
+.logo-container {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  animation: pulse 2s infinite;
+}
+
+.logo-container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Step Number Styling */
+.step-number {
+  min-width: 30px;
+  min-height: 30px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 8px rgba(255, 107, 53, 0.3);
+}
+
+/* Upload Area Specific Styles */
+.upload-area {
+  min-height: 120px;
+  transition: all 0.3s ease;
+  border-color: #e9ecef;
+}
+
+.upload-area:hover {
+  border-color: var(--primary-orange) !important;
+  background-color: rgba(255, 107, 53, 0.05) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 107, 53, 0.1);
+}
+
+.bg-orange-light {
+  background-color: rgba(255, 107, 53, 0.1) !important;
+}
+
+.border-orange {
+  border-color: var(--primary-orange) !important;
+}
+
+/* Selected File Card */
+.selected-file {
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.selected-file:hover {
+  border-color: var(--primary-orange);
+  background-color: rgba(255, 107, 53, 0.05);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.1);
+}
+
+/* Button Styles */
+.btn-outline-orange {
+  color: var(--primary-orange);
+  border-color: var(--primary-orange);
+  background-color: transparent;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  border-radius: 0.5rem;
+}
+
+.btn-outline-orange:hover {
+  color: white;
+  background-color: var(--primary-orange);
+  border-color: var(--primary-orange);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+}
+
+.btn-outline-orange:active {
+  transform: translateY(0);
+}
+
+.btn-orange {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  border-radius: 0.5rem;
+}
+
+.btn-orange:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 107, 53, 0.3);
+}
+
+.btn-orange:active {
+  transform: translateY(0);
+}
+
+/* Animation for upload area */
+.upload-content {
+  transition: all 0.3s ease;
+}
+
+.upload-area:hover .upload-content {
+  transform: translateY(-2px);
+}
+
+/* Alert Styling */
+.alert-danger {
+  border-radius: 0.5rem;
+  border: none;
+  background-color: #ffe6e6;
+  color: #d93025;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Header Section */
+.header-section {
+  padding: 0 1rem;
+  margin-top: 1rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .min-vh-100 {
+    padding: 2rem 1rem !important;
+    justify-content: flex-start !important;
+    min-height: 100vh;
+  }
+
+  .header-section {
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
+    padding: 0 0.5rem;
+  }
+
+  .activation-card {
+    margin: 0 0.5rem 1rem 0.5rem !important;
+    padding: 2rem 1.5rem !important;
+    border-radius: 20px !important;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .activation-step {
+    margin-bottom: 2rem !important;
+  }
+
+  .step-number {
+    width: 25px !important;
+    height: 25px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .upload-area {
+    min-height: 100px;
+  }
+
+  .logo-container {
+    width: 60px;
+    height: 60px;
+  }
+
+  .logo-container i {
+    font-size: 1.5rem !important;
+  }
+
+  .h3 {
+    font-size: 1.75rem !important;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 575.98px) {
+  .min-vh-100 {
+    padding: 1.5rem 0.75rem !important;
+  }
+
+  .header-section {
+    margin-top: 0.5rem !important;
+    margin-bottom: 1rem !important;
+    padding: 0 0.25rem;
+  }
+
+  .activation-card {
+    margin: 0 0.25rem 0.75rem 0.25rem !important;
+    padding: 1.5rem 1rem !important;
+    border-radius: 15px !important;
+  }
+
+  .h3 {
+    font-size: 1.5rem !important;
+  }
+
+  .btn-lg {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+  }
+
+  .logo-container {
+    width: 50px;
+    height: 50px;
+  }
+
+  .logo-container i {
+    font-size: 1.25rem !important;
+  }
+
+  .activation-step {
+    margin-bottom: 1.5rem !important;
+  }
+
+  .upload-area {
+    min-height: 90px;
+    padding: 1rem !important;
+  }
+
+  .upload-content i {
+    font-size: 2rem !important;
+  }
+}
+
+/* Landscape mobile orientation */
+@media (max-width: 768px) and (orientation: landscape) {
+  .min-vh-100 {
+    padding: 1rem !important;
+    justify-content: center !important;
+  }
+
+  .header-section {
+    margin-top: 0.5rem !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .activation-card {
+    margin-bottom: 0.5rem !important;
+  }
+
+  .logo-container {
+    width: 50px;
+    height: 50px;
+  }
+
+  .h3 {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* Very tall screens */
+@media (min-height: 900px) {
+  .header-section {
+    margin-top: 2rem !important;
+    margin-bottom: 2rem !important;
+  }
+
+  .activation-card {
+    margin-bottom: 2rem !important;
+  }
+}
+
+/* Loading State */
+.btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Form enhancements */
+.form-control:focus {
+  border-color: var(--primary-orange);
+  box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+}

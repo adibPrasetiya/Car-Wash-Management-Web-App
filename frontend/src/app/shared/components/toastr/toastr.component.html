@@ -1,0 +1,41 @@
+<!-- Professional Toast Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3">
+  <div
+    *ngFor="let notification of notifications; trackBy: trackByFn"
+    class="toast show fade-in-slide"
+    [ngClass]="getProfessionalToastClass(notification.type)"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    tabindex="0"
+    [attr.aria-label]="'Notification: ' + notification.message">
+
+    <!-- Enhanced Toast Header -->
+    <div class="toast-header d-flex align-items-center">
+      <div class="notification-icon d-flex align-items-center">
+        <i [class]="getIcon(notification.type)"
+           [attr.aria-hidden]="true"></i>
+      </div>
+      <div class="notification-content flex-grow-1">
+        <strong class="notification-title">{{ getTypeLabel(notification.type) }}</strong>
+        <small class="notification-time d-block">{{ getTimeAgo(notification.timestamp) }}</small>
+      </div>
+      <button
+        type="button"
+        class="btn-close"
+        aria-label="Tutup notifikasi"
+        (click)="removeNotification(notification.id)"
+        (keydown.enter)="removeNotification(notification.id)"
+        (keydown.space)="removeNotification(notification.id)">
+      </button>
+    </div>
+
+    <!-- Enhanced Toast Body -->
+    <div class="toast-body">
+      <p class="notification-message mb-0">{{ notification.message }}</p>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="toast-progress" [attr.aria-hidden]="true"></div>
+  </div>
+</div>

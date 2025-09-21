@@ -1,0 +1,35 @@
+/* You can add global styles to this file, and also import other style files */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* Custom brand colors - Orange theme */
+:root {
+  --primary-orange: #ff6b35;
+  --secondary-orange: #ff8c42;
+  --accent-orange: #ff9500;
+  --dark-orange: #e55100;
+  --light-orange: #ffe0d6;
+}
+
+.btn-orange {
+  background-color: var(--primary-orange);
+  border-color: var(--primary-orange);
+  color: white;
+}
+
+.btn-orange:hover {
+  background-color: var(--dark-orange);
+  border-color: var(--dark-orange);
+  color: white;
+}
+
+.text-orange {
+  color: var(--primary-orange) !important;
+}
+
+.bg-orange {
+  background-color: var(--primary-orange) !important;
+}
+
+.bg-light-orange {
+  background-color: var(--light-orange) !important;
+}

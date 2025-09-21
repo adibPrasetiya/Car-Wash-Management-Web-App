@@ -1,0 +1,393 @@
+<div class="transaction-list-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">Transactions</h1>
+        <p class="page-subtitle">Manage all car wash transactions</p>
+      </div>
+      <button class="btn-primary" (click)="onAddTransaction()">
+        <i class="fas fa-plus"></i>
+        New Transaction
+      </button>
+    </div>
+  </div>
+
+  <!-- Search and Filters -->
+  <div class="filters-section">
+    <div class="filters-row">
+      <!-- Search Column (Left) -->
+      <div class="search-column">
+        <div class="search-input-wrapper">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search by transaction ID, plate number, or client name..."
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onSearch()"
+            (input)="onSearch()"
+          />
+        </div>
+      </div>
+
+      <!-- Filters Column (Right) -->
+      <div class="filters-column">
+        <div class="filter-group">
+          <!-- Status Filter -->
+          <div class="custom-dropdown" [class.open]="isStatusDropdownOpen">
+            <button
+              class="custom-dropdown-trigger"
+              (click)="toggleStatusDropdown($event)"
+            >
+              <span class="dropdown-label">{{ getStatusLabel() }}</span>
+              <i
+                class="fas fa-chevron-down dropdown-arrow"
+                [class.rotated]="isStatusDropdownOpen"
+              ></i>
+            </button>
+            <div class="custom-dropdown-menu">
+              <div
+                class="dropdown-option"
+                [class.selected]="selectedStatus === ''"
+                (click)="selectStatus('')"
+              >
+                <span>All Status</span>
+                <i class="fas fa-check" *ngIf="selectedStatus === ''"></i>
+              </div>
+              <div
+                class="dropdown-option"
+                [class.selected]="selectedStatus === 'pending'"
+                (click)="selectStatus('pending')"
+              >
+                <span class="status-dot pending"></span>
+                <span>Pending</span>
+                <i
+                  class="fas fa-check"
+                  *ngIf="selectedStatus === 'pending'"
+                ></i>
+              </div>
+              <div
+                class="dropdown-option"
+                [class.selected]="selectedStatus === 'in_progress'"
+                (click)="selectStatus('in_progress')"
+              >
+                <span class="status-dot progress"></span>
+                <span>In Progress</span>
+                <i
+                  class="fas fa-check"
+                  *ngIf="selectedStatus === 'in_progress'"
+                ></i>
+              </div>
+              <div
+                class="dropdown-option"
+                [class.selected]="selectedStatus === 'completed'"
+                (click)="selectStatus('completed')"
+              >
+                <span class="status-dot success"></span>
+                <span>Success</span>
+                <i
+                  class="fas fa-check"
+                  *ngIf="selectedStatus === 'completed'"
+                ></i>
+              </div>
+              <div
+                class="dropdown-option"
+                [class.selected]="selectedStatus === 'cancelled'"
+                (click)="selectStatus('cancelled')"
+              >
+                <span class="status-dot cancelled"></span>
+                <span>Cancelled</span>
+                <i
+                  class="fas fa-check"
+                  *ngIf="selectedStatus === 'cancelled'"
+                ></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Client Type Filter -->
+          <div class="custom-dropdown" [class.open]="isClientTypeDropdownOpen">
+            <button
+              class="custom-dropdown-trigger"
+              (click)="toggleClientTypeDropdown($event)"
+            >
+              <span class="dropdown-label">{{ getClientTypeLabel() }}</span>
+              <i
+                class="fas fa-chevron-down dropdown-arrow"
+                [class.rotated]="isClientTypeDropdownOpen"
+              ></i>
+            </button>
+            <div class="custom-dropdown-menu">
+              <div
+                class="dropdown-option"
+                [class.selected]="selectedClientType === ''"
+                (click)="selectClientType('')"
+              >
+                <span>All Clients</span>
+                <i class="fas fa-check" *ngIf="selectedClientType === ''"></i>
+              </div>
+              <div
+                class="dropdown-option"
+                [class.selected]="selectedClientType === 'U'"
+                (click)="selectClientType('U')"
+              >
+                <i class="fas fa-user-check client-icon"></i>
+                <span>Registered</span>
+                <i class="fas fa-check" *ngIf="selectedClientType === 'U'"></i>
+              </div>
+              <div
+                class="dropdown-option"
+                [class.selected]="selectedClientType === 'P'"
+                (click)="selectClientType('P')"
+              >
+                <i class="fas fa-user-plus client-icon"></i>
+                <span>Guest</span>
+                <i class="fas fa-check" *ngIf="selectedClientType === 'P'"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clear Filters Button -->
+          <button
+            class="btn-clear"
+            (click)="clearFilters()"
+            *ngIf="searchQuery || selectedStatus || selectedClientType"
+          >
+            <i class="fas fa-times"></i>
+            Clear
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Loading transactions...</p>
+  </div>
+
+  <!-- Transactions Table -->
+  <div *ngIf="!isLoading" class="transactions-table-container">
+    <div class="table-header">
+      <div class="table-info">
+        <h3 class="table-title">Recent Transactions</h3>
+        <p class="table-subtitle">{{ totalCount }} total transactions</p>
+      </div>
+
+      <div class="page-size-selector">
+        <label for="pageSize">Show:</label>
+        <select
+          id="pageSize"
+          [(ngModel)]="pageSize"
+          (change)="onPageSizeChange()"
+        >
+          <option *ngFor="let size of pageSizeOptions" [value]="size">
+            {{ size }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="transactions-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Transaction ID</th>
+            <th>Transaction reference</th>
+            <th>Category</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Amount</th>
+            <th>Served By</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="
+              let transaction of transactions;
+              trackBy: trackByTransactionId
+            "
+            (click)="onViewDetail(transaction)"
+          >
+            <td>
+              <div class="client-info">
+                <div class="client-avatar">
+                  <span>{{
+                    transaction.clientName.charAt(0).toUpperCase()
+                  }}</span>
+                </div>
+                <div class="client-details">
+                  <div class="client-name">{{ transaction.clientName }}</div>
+                  <div class="client-type">
+                    {{ getClientTypeText(transaction.clientType) }}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td class="transaction-id">{{ transaction.transactionId }}</td>
+            <td class="transaction-ref">{{ transaction.transactionNumber }}</td>
+            <td class="category">
+              {{ getVehicleTypeText(transaction.vehicleType) }}
+            </td>
+            <td>
+              <div class="date-info">
+                <div class="date">{{ formatDate(transaction.date) }}</div>
+                <div class="time">{{ formatTime(transaction.date) }}</div>
+              </div>
+            </td>
+            <td>
+              <span
+                class="status-badge"
+                [ngClass]="getStatusClass(transaction.status)"
+              >
+                {{ getStatusText(transaction.status) }}
+              </span>
+            </td>
+            <td class="amount">{{ formatCurrency(transaction.amount) }}</td>
+            <td class="served-by">{{ transaction.cashierName }}</td>
+            <td>
+              <div class="action-menu-container">
+                <button
+                  class="action-button"
+                  [class.active]="isActionMenuOpen(transaction.id)"
+                  (click)="toggleActionMenu(transaction.id, $event)"
+                >
+                  <i class="fas fa-ellipsis-h"></i>
+                </button>
+
+                <div
+                  class="action-menu"
+                  [class.show]="isActionMenuOpen(transaction.id)"
+                >
+                  <button
+                    class="action-menu-item"
+                    (click)="onViewDetail(transaction)"
+                  >
+                    <i class="fas fa-eye"></i>
+                    <span>View Details</span>
+                  </button>
+                  <button
+                    class="action-menu-item"
+                    (click)="onEditTransaction(transaction.id)"
+                  >
+                    <i class="fas fa-edit"></i>
+                    <span>Edit</span>
+                  </button>
+                  <div class="action-menu-divider"></div>
+                  <div class="action-menu-submenu">
+                    <span class="action-menu-label">Update Status</span>
+                    <button
+                      class="action-menu-item status-item"
+                      [class.current]="transaction.status === 'pending'"
+                      (click)="
+                        onUpdateTransactionStatus(transaction, 'pending')
+                      "
+                    >
+                      <span class="status-dot pending"></span>
+                      <span>Pending</span>
+                    </button>
+                    <button
+                      class="action-menu-item status-item"
+                      [class.current]="transaction.status === 'in_progress'"
+                      (click)="
+                        onUpdateTransactionStatus(transaction, 'in_progress')
+                      "
+                    >
+                      <span class="status-dot progress"></span>
+                      <span>In Progress</span>
+                    </button>
+                    <button
+                      class="action-menu-item status-item"
+                      [class.current]="transaction.status === 'completed'"
+                      (click)="
+                        onUpdateTransactionStatus(transaction, 'completed')
+                      "
+                    >
+                      <span class="status-dot success"></span>
+                      <span>Success</span>
+                    </button>
+                    <button
+                      class="action-menu-item status-item"
+                      [class.current]="transaction.status === 'cancelled'"
+                      (click)="
+                        onUpdateTransactionStatus(transaction, 'cancelled')
+                      "
+                    >
+                      <span class="status-dot cancelled"></span>
+                      <span>Cancelled</span>
+                    </button>
+                  </div>
+                  <div class="action-menu-divider"></div>
+                  <button
+                    class="action-menu-item danger"
+                    (click)="onDeleteTransaction(transaction)"
+                  >
+                    <i class="fas fa-trash"></i>
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="transactions.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <i class="fas fa-receipt"></i>
+        </div>
+        <h3 class="empty-title">No transactions found</h3>
+        <p class="empty-subtitle">Start by adding your first transaction</p>
+        <button class="btn-primary" (click)="onAddTransaction()">
+          <i class="fas fa-plus"></i>
+          Add First Transaction
+        </button>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" *ngIf="transactions.length > 0">
+      <div class="pagination-info">
+        Showing {{ (currentPage - 1) * pageSize + 1 }} to
+        {{ Math.min(currentPage * pageSize, totalCount) }} of
+        {{ totalCount }} entries
+      </div>
+
+      <div class="pagination-controls">
+        <button
+          class="pagination-btn"
+          [disabled]="currentPage === 1"
+          (click)="onPageChange(currentPage - 1)"
+        >
+          <i class="fas fa-chevron-left"></i>
+          Previous
+        </button>
+
+        <div class="page-numbers">
+          <button
+            *ngFor="let page of getPageNumbers()"
+            class="page-number"
+            [class.active]="page === currentPage"
+            (click)="onPageChange(page)"
+          >
+            {{ page }}
+          </button>
+        </div>
+
+        <button
+          class="pagination-btn"
+          [disabled]="currentPage === totalPages"
+          (click)="onPageChange(currentPage + 1)"
+        >
+          Next
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

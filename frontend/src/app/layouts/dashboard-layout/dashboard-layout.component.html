@@ -1,0 +1,18 @@
+<div class="dashboard-layout">
+  <app-sidebar [class.mobile-open]="isMobileSidebarOpen"></app-sidebar>
+
+  <!-- Sidebar overlay for mobile -->
+  <div class="sidebar-overlay"
+       [class.active]="isMobileSidebarOpen"
+       (click)="closeMobileSidebar()"></div>
+
+  <div class="dashboard-content">
+    <app-header (toggleSidebar)="toggleMobileSidebar()"></app-header>
+
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+
+    <app-footer></app-footer>
+  </div>
+</div>

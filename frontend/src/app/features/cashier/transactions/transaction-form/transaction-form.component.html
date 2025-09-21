@@ -1,0 +1,211 @@
+<div class="container-fluid">
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 mb-0 fw-bold text-dark">Transaksi Baru</h1>
+      <p class="text-muted mb-0">Tambahkan transaksi cuci mobil baru</p>
+    </div>
+    <button class="btn btn-outline-secondary" (click)="onCancel()">
+      <i class="fas fa-arrow-left me-2"></i>
+      Kembali
+    </button>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <!-- Transaction Form Card -->
+      <div class="card shadow-sm">
+        <div class="card-header bg-orange text-white">
+          <h5 class="card-title mb-0">
+            <i class="fas fa-plus-circle me-2"></i>
+            Form Transaksi Baru
+          </h5>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" novalidate>
+            <!-- Client Field -->
+            <div class="mb-4">
+              <label for="client" class="form-label fw-semibold">
+                <i class="fas fa-user me-2 text-orange"></i>
+                Nama Client <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                id="client"
+                class="form-control form-control-lg"
+                [class.is-invalid]="isFieldInvalid('client')"
+                formControlName="client"
+                placeholder="Masukkan nama client"
+                autocomplete="off"
+              >
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('client')">
+                <small>{{ getFieldError('client') }}</small>
+              </div>
+            </div>
+
+            <!-- Date Field -->
+            <div class="mb-4">
+              <label for="tanggal" class="form-label fw-semibold">
+                <i class="fas fa-calendar me-2 text-orange"></i>
+                Tanggal <span class="text-danger">*</span>
+              </label>
+              <input
+                type="date"
+                id="tanggal"
+                class="form-control form-control-lg"
+                [class.is-invalid]="isFieldInvalid('tanggal')"
+                formControlName="tanggal"
+              >
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('tanggal')">
+                <small>{{ getFieldError('tanggal') }}</small>
+              </div>
+            </div>
+
+            <!-- Description Field -->
+            <div class="mb-4">
+              <label for="deskripsi" class="form-label fw-semibold">
+                <i class="fas fa-clipboard-list me-2 text-orange"></i>
+                Deskripsi Layanan <span class="text-danger">*</span>
+              </label>
+              <textarea
+                id="deskripsi"
+                class="form-control form-control-lg"
+                [class.is-invalid]="isFieldInvalid('deskripsi')"
+                formControlName="deskripsi"
+                placeholder="Contoh: Cuci mobil sedan reguler + wax"
+                rows="3"
+              ></textarea>
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('deskripsi')">
+                <small>{{ getFieldError('deskripsi') }}</small>
+              </div>
+              <div class="form-text">
+                <i class="fas fa-lightbulb me-1"></i>
+                Jelaskan jenis layanan yang diberikan secara detail
+              </div>
+            </div>
+
+            <!-- Amount Field -->
+            <div class="mb-4">
+              <label for="jumlah" class="form-label fw-semibold">
+                <i class="fas fa-money-bill me-2 text-orange"></i>
+                Jumlah (IDR) <span class="text-danger">*</span>
+              </label>
+              <div class="input-group input-group-lg">
+                <span class="input-group-text">Rp</span>
+                <input
+                  type="number"
+                  id="jumlah"
+                  class="form-control"
+                  [class.is-invalid]="isFieldInvalid('jumlah')"
+                  formControlName="jumlah"
+                  placeholder="0"
+                  min="1000"
+                  step="1000"
+                >
+              </div>
+              <div class="invalid-feedback" *ngIf="isFieldInvalid('jumlah')">
+                <small>{{ getFieldError('jumlah') }}</small>
+              </div>
+              <div class="form-text">
+                <i class="fas fa-info-circle me-1"></i>
+                Minimal Rp 1.000, gunakan kelipatan 1000
+              </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="d-flex justify-content-between pt-3">
+              <button
+                type="button"
+                class="btn btn-outline-secondary btn-lg"
+                (click)="onCancel()"
+                [disabled]="isSubmitting"
+              >
+                <i class="fas fa-times me-2"></i>
+                Batal
+              </button>
+              <button
+                type="submit"
+                class="btn btn-orange btn-lg"
+                [disabled]="isSubmitting || transactionForm.invalid"
+              >
+                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
+                <i *ngIf="!isSubmitting" class="fas fa-save me-2"></i>
+                {{ isSubmitting ? 'Menyimpan...' : 'Simpan Transaksi' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Quick Service Templates -->
+      <div class="card shadow-sm mt-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="fas fa-star me-2 text-warning"></i>
+            Template Layanan Populer
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="border rounded p-3 h-100 bg-light hover-card" style="cursor: pointer;"
+                   (click)="fillTemplate('Cuci mobil sedan reguler', 50000)">
+                <div class="d-flex align-items-center">
+                  <div class="bg-primary rounded-circle p-2 me-3">
+                    <i class="fas fa-car text-white"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-1">Cuci Sedan Reguler</h6>
+                    <small class="text-muted">Rp 50.000</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="border rounded p-3 h-100 bg-light hover-card" style="cursor: pointer;"
+                   (click)="fillTemplate('Cuci mobil SUV premium + wax', 120000)">
+                <div class="d-flex align-items-center">
+                  <div class="bg-success rounded-circle p-2 me-3">
+                    <i class="fas fa-car text-white"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-1">Cuci SUV Premium</h6>
+                    <small class="text-muted">Rp 120.000</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="border rounded p-3 h-100 bg-light hover-card" style="cursor: pointer;"
+                   (click)="fillTemplate('Cuci motor + detailing', 35000)">
+                <div class="d-flex align-items-center">
+                  <div class="bg-info rounded-circle p-2 me-3">
+                    <i class="fas fa-motorcycle text-white"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-1">Cuci Motor</h6>
+                    <small class="text-muted">Rp 35.000</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="border rounded p-3 h-100 bg-light hover-card" style="cursor: pointer;"
+                   (click)="fillTemplate('Cuci mobil hatchback + poles', 80000)">
+                <div class="d-flex align-items-center">
+                  <div class="bg-warning rounded-circle p-2 me-3">
+                    <i class="fas fa-car text-white"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-1">Cuci Hatchback + Poles</h6>
+                    <small class="text-muted">Rp 80.000</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

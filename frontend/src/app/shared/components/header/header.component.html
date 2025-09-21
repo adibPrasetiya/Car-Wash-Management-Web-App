@@ -1,0 +1,64 @@
+<header class="header">
+  <div class="header-left">
+    <button class="mobile-menu-btn" (click)="toggleMobileSidebar()">
+      <i class="fas fa-bars"></i>
+    </button>
+    <div class="page-title">
+      <h1 class="title">{{ currentPageTitle }}</h1>
+      <p class="subtitle">{{ currentPageSubtitle }}</p>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <div class="header-actions">
+      <button class="notification-btn" title="Notifications">
+        <i class="fas fa-bell"></i>
+        <span class="notification-badge">3</span>
+      </button>
+
+      <div class="user-profile" (click)="toggleUserDropdown()">
+        <div class="user-avatar">
+          <img src="https://ui-avatars.com/api/?name=Admin&background=FF6B35&color=ffffff&size=40" alt="User Avatar">
+        </div>
+        <div class="user-info">
+          <span class="user-name">Admin User</span>
+          <span class="user-role">Administrator</span>
+        </div>
+        <div class="user-dropdown">
+          <i class="fas fa-chevron-down" [class.rotated]="isUserDropdownOpen"></i>
+        </div>
+
+        <!-- User Dropdown Menu -->
+        <div class="user-dropdown-menu" [class.show]="isUserDropdownOpen">
+          <div class="dropdown-header">
+            <div class="dropdown-avatar">
+              <img src="https://ui-avatars.com/api/?name=Admin&background=FF6B35&color=ffffff&size=48" alt="User Avatar">
+            </div>
+            <div class="dropdown-user-info">
+              <div class="dropdown-user-name">Admin User</div>
+              <div class="dropdown-user-email">admin&#64;carwash.com</div>
+            </div>
+          </div>
+
+          <div class="dropdown-divider"></div>
+
+          <div class="dropdown-items">
+            <button class="dropdown-item" (click)="onProfile()">
+              <i class="fas fa-user"></i>
+              <span>My Profile</span>
+            </button>
+            <button class="dropdown-item" (click)="onSettings()">
+              <i class="fas fa-cog"></i>
+              <span>Settings</span>
+            </button>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item logout" (click)="onLogout()">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Logout</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
