@@ -1,0 +1,319 @@
+<div class="client-list-container" (click)="closeDropdowns()">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">Client Management</h1>
+        <p class="page-subtitle">Manage registered clients and their information</p>
+      </div>
+      <button class="btn-primary" (click)="addNewClient()">
+        <i class="fas fa-user-plus"></i>
+        <span>Add New Client</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section" [formGroup]="filterForm">
+    <div class="filters-row">
+      <!-- Search -->
+      <div class="search-column">
+        <div class="search-input-wrapper">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search clients by name, phone, or license plate..."
+            formControlName="searchQuery">
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters-column">
+        <div class="filter-group">
+          <!-- Vehicle Type Filter -->
+          <div class="custom-dropdown" [class.open]="isVehicleDropdownOpen" (click)="preventClose($event)">
+            <button class="custom-dropdown-trigger" (click)="isVehicleDropdownOpen = !isVehicleDropdownOpen">
+              <span class="dropdown-label">
+                {{ selectedVehicleType ? getVehicleTypeText(selectedVehicleType) : 'Vehicle Type' }}
+              </span>
+              <i class="fas fa-chevron-down dropdown-arrow" [class.rotated]="isVehicleDropdownOpen"></i>
+            </button>
+            <div class="custom-dropdown-menu">
+              <div class="dropdown-option" [class.selected]="selectedVehicleType === ''" (click)="onVehicleFilter('')">
+                <span>All Types</span>
+                <i class="fas fa-check" *ngIf="selectedVehicleType === ''"></i>
+              </div>
+              <div class="dropdown-option" [class.selected]="selectedVehicleType === 'car'" (click)="onVehicleFilter('car')">
+                <i class="fas fa-car vehicle-icon"></i>
+                <span>Car</span>
+                <i class="fas fa-check" *ngIf="selectedVehicleType === 'car'"></i>
+              </div>
+              <div class="dropdown-option" [class.selected]="selectedVehicleType === 'motorcycle'" (click)="onVehicleFilter('motorcycle')">
+                <i class="fas fa-motorcycle vehicle-icon"></i>
+                <span>Motorcycle</span>
+                <i class="fas fa-check" *ngIf="selectedVehicleType === 'motorcycle'"></i>
+              </div>
+              <div class="dropdown-option" [class.selected]="selectedVehicleType === 'truck'" (click)="onVehicleFilter('truck')">
+                <i class="fas fa-truck vehicle-icon"></i>
+                <span>Truck</span>
+                <i class="fas fa-check" *ngIf="selectedVehicleType === 'truck'"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status Filter -->
+          <div class="custom-dropdown" [class.open]="isStatusDropdownOpen" (click)="preventClose($event)">
+            <button class="custom-dropdown-trigger" (click)="isStatusDropdownOpen = !isStatusDropdownOpen">
+              <span class="dropdown-label">
+                {{ activeStatusFilter === 'all' ? 'All Status' :
+                   activeStatusFilter === 'active' ? 'Active' : 'Inactive' }}
+              </span>
+              <i class="fas fa-chevron-down dropdown-arrow" [class.rotated]="isStatusDropdownOpen"></i>
+            </button>
+            <div class="custom-dropdown-menu">
+              <div class="dropdown-option" [class.selected]="activeStatusFilter === 'all'" (click)="onStatusFilter('all')">
+                <span>All Status</span>
+                <i class="fas fa-check" *ngIf="activeStatusFilter === 'all'"></i>
+              </div>
+              <div class="dropdown-option" [class.selected]="activeStatusFilter === 'active'" (click)="onStatusFilter('active')">
+                <div class="status-dot success"></div>
+                <span>Active</span>
+                <i class="fas fa-check" *ngIf="activeStatusFilter === 'active'"></i>
+              </div>
+              <div class="dropdown-option" [class.selected]="activeStatusFilter === 'inactive'" (click)="onStatusFilter('inactive')">
+                <div class="status-dot cancelled"></div>
+                <span>Inactive</span>
+                <i class="fas fa-check" *ngIf="activeStatusFilter === 'inactive'"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Clear Filters -->
+          <button class="btn-clear" (click)="clearFilters()" *ngIf="searchQuery || selectedVehicleType || activeStatusFilter !== 'all'">
+            <i class="fas fa-times"></i>
+            <span>Clear</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Loading clients...</p>
+  </div>
+
+  <!-- Clients Table -->
+  <div class="clients-table-container" *ngIf="!isLoading">
+    <div class="table-header">
+      <div class="table-info">
+        <h3 class="table-title">Clients</h3>
+        <p class="table-subtitle">{{ totalCount }} total clients found</p>
+      </div>
+      <div class="page-size-selector">
+        <label>Show</label>
+        <select [value]="pageSize" (change)="onPageSizeChange($event)">
+          <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+        </select>
+        <label>per page</label>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <table class="clients-table" *ngIf="clients.length > 0">
+        <thead>
+          <tr>
+            <th>Client</th>
+            <th>Contact</th>
+            <th>Vehicles</th>
+            <th>Transactions</th>
+            <th>Loyalty Rank</th>
+            <th>Last Visit</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let client of clients; trackBy: trackByClientId" (click)="viewClientDetails(client)">
+            <!-- Client Info -->
+            <td>
+              <div class="client-info">
+                <div class="client-avatar">
+                  <span>{{ client.name.charAt(0).toUpperCase() }}</span>
+                </div>
+                <div class="client-details">
+                  <div class="client-name">{{ client.name }}</div>
+                  <div class="client-type">{{ getClientTypeText(client.type) }}</div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Contact Info -->
+            <td>
+              <div class="contact-info">
+                <div class="contact-phone">{{ client.phone }}</div>
+                <div class="contact-email" *ngIf="client.email">{{ client.email }}</div>
+                <div class="contact-email" *ngIf="!client.email">-</div>
+              </div>
+            </td>
+
+            <!-- Vehicle Info -->
+            <td>
+              <div class="vehicles-info">
+                <div class="vehicles-list" *ngIf="client.vehicles && client.vehicles.length > 0; else noVehicles">
+                  <!-- Show first vehicle -->
+                  <div class="vehicle-item primary" *ngIf="client.vehicles[0]">
+                    <div class="vehicle-plate">
+                      <i [class]="getVehicleTypeIcon(client.vehicles[0].vehicleType)"></i>
+                      <span>{{ client.vehicles[0].plateNumber }}</span>
+                    </div>
+                    <div class="vehicle-details">
+                      <span class="vehicle-brand">{{ client.vehicles[0].brand || '' }} {{ client.vehicles[0].model || '' }}</span>
+                      <span class="vehicle-type">{{ getVehicleTypeText(client.vehicles[0].vehicleType) }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Show additional vehicles badge -->
+                  <div class="additional-vehicles" *ngIf="client.vehicles.length > 1">
+                    <span class="vehicles-badge" [title]="getVehiclesSummary(client.vehicles.slice(1))">
+                      +{{ client.vehicles.length - 1 }} more
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Fallback for backward compatibility -->
+                <ng-template #noVehicles>
+                  <div class="vehicle-item" *ngIf="client.plateNumber">
+                    <div class="vehicle-plate">
+                      <i [class]="getVehicleTypeIcon(client.vehicleType!)"></i>
+                      <span>{{ client.plateNumber }}</span>
+                    </div>
+                    <div class="vehicle-type">{{ getVehicleTypeText(client.vehicleType!) }}</div>
+                  </div>
+                </ng-template>
+              </div>
+            </td>
+
+            <!-- Transaction Count -->
+            <td>
+              <div class="transaction-count">
+                <span class="count-number">{{ client.totalTransactions || 0 }}</span>
+                <span class="count-label">transactions</span>
+              </div>
+            </td>
+
+            <!-- Loyalty Rank -->
+            <td>
+              <div class="loyalty-rank">
+                <div class="rank-badge" [style.background-color]="getLoyaltyRank(client.totalTransactions || 0).color">
+                  <i class="fas fa-crown"></i>
+                  <span>{{ getLoyaltyRank(client.totalTransactions || 0).rank }}</span>
+                </div>
+              </div>
+            </td>
+
+            <!-- Last Visit -->
+            <td>
+              <div class="date-info">
+                <div class="date">{{ formatDate(client.lastVisit) }}</div>
+              </div>
+            </td>
+
+            <!-- Status -->
+            <td>
+              <span class="status-badge" [class]="client.isActive ? 'status-active' : 'status-inactive'">
+                {{ client.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+
+            <!-- Actions -->
+            <td (click)="$event.stopPropagation()">
+              <div class="action-menu-container">
+                <button class="action-button"
+                        [class.active]="activeActionMenu === client.id"
+                        (click)="toggleActionMenu(client.id)">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="action-menu" [class.show]="activeActionMenu === client.id">
+                  <button class="action-menu-item" (click)="viewClientDetails(client)">
+                    <i class="fas fa-eye"></i>
+                    <span>View Details</span>
+                  </button>
+                  <button class="action-menu-item" (click)="editClient(client)">
+                    <i class="fas fa-edit"></i>
+                    <span>Edit Client</span>
+                  </button>
+                  <div class="action-menu-divider"></div>
+                  <button class="action-menu-item danger" (click)="deactivateClient(client)" *ngIf="client.isActive">
+                    <i class="fas fa-user-slash"></i>
+                    <span>Deactivate</span>
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="clients.length === 0">
+        <div class="empty-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <h3 class="empty-title">No clients found</h3>
+        <p class="empty-subtitle">
+          {{ searchQuery || selectedVehicleType || activeStatusFilter !== 'all'
+             ? 'Try adjusting your search filters'
+             : 'Start by adding your first client' }}
+        </p>
+        <button class="btn-primary" (click)="addNewClient()" *ngIf="!searchQuery && !selectedVehicleType && activeStatusFilter === 'all'">
+          <i class="fas fa-user-plus"></i>
+          Add First Client
+        </button>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" *ngIf="clients.length > 0 && totalPages > 1">
+      <div class="pagination-info">
+        Showing {{ (currentPage - 1) * pageSize + 1 }} to
+        {{ Math.min(currentPage * pageSize, totalCount) }} of
+        {{ totalCount }} clients
+      </div>
+      <div class="pagination-controls">
+        <button class="pagination-btn"
+                [disabled]="currentPage === 1"
+                (click)="onPageChange(currentPage - 1)">
+          <i class="fas fa-chevron-left"></i>
+          <span>Previous</span>
+        </button>
+
+        <div class="page-numbers">
+          <button *ngFor="let page of getVisiblePageNumbers()"
+                  class="page-number"
+                  [class.active]="page === currentPage"
+                  [disabled]="page === -1"
+                  (click)="page !== -1 && onPageChange(page)">
+            {{ page === -1 ? '...' : page }}
+          </button>
+        </div>
+
+        <button class="pagination-btn"
+                [disabled]="currentPage === totalPages"
+                (click)="onPageChange(currentPage + 1)">
+          <span>Next</span>
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Client Registration Modal -->
+  <app-client-form
+    [isVisible]="showClientFormModal"
+    (visibilityChange)="onClientFormModalVisibilityChange($event)"
+    (clientCreated)="onClientCreated($event)">
+  </app-client-form>
+</div>

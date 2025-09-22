@@ -94,43 +94,85 @@
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
       <!-- Step 2: Vehicle Information -->
       <div class="form-step" *ngIf="currentStep === 'vehicle'">
         <div class="form-section">
-          <h3 class="section-title">Informasi Kendaraan</h3>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label required">Jenis Kendaraan</label>
-              <select
-                class="form-input"
-                [class.error]="isFieldInvalid('vehicleType')"
-                formControlName="vehicleType">
-                <option value="car">Mobil</option>
-                <option value="motorcycle">Motor</option>
-                <option value="truck">Truk</option>
-              </select>
-              <div class="error-message" *ngIf="isFieldInvalid('vehicleType')">
-                {{ getFieldError('vehicleType') }}
-              </div>
-            </div>
+          <div class="vehicles-header">
+            <h3 class="section-title">Informasi Kendaraan</h3>
+            <button
+              type="button"
+              class="btn-add-vehicle"
+              (click)="addVehicle()"
+              *ngIf="vehicles.length < 5">
+              <i class="fas fa-plus"></i>
+              Tambah Kendaraan
+            </button>
           </div>
 
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label required">Nomor Plat</label>
-              <input
-                type="text"
-                class="form-input"
-                [class.error]="isFieldInvalid('plateNumber')"
-                formControlName="plateNumber"
-                placeholder="contoh: B1234ABC"
-                style="text-transform: uppercase;">
-              <div class="error-message" *ngIf="isFieldInvalid('plateNumber')">
-                {{ getFieldError('plateNumber') }}
+          <!-- Vehicles List -->
+          <div formArrayName="vehicles" class="vehicles-list">
+            <div *ngFor="let vehicleForm of vehicles.controls; let i = index"
+                 [formGroupName]="i"
+                 class="vehicle-card">
+
+              <!-- Vehicle Header -->
+              <div class="vehicle-header">
+                <div class="vehicle-title">
+                  <i [class]="getVehicleTypeIcon(vehicleForm.get('vehicleType')?.value || 'car')"></i>
+                  <span>Kendaraan {{ i + 1 }}</span>
+                </div>
+                <button
+                  type="button"
+                  class="btn-remove-vehicle"
+                  (click)="removeVehicle(i)"
+                  *ngIf="vehicles.length > 1">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+
+              <!-- Vehicle Form Fields -->
+              <div class="vehicle-form-content">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label required">Nomor Plat</label>
+                    <input
+                      type="text"
+                      class="form-input"
+                      formControlName="plateNumber"
+                      placeholder="B1234ABC"
+                      style="text-transform: uppercase;">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label required">Jenis Kendaraan</label>
+                    <select class="form-input" formControlName="vehicleType">
+                      <option value="car">Mobil</option>
+                      <option value="motorcycle">Motor</option>
+                      <option value="truck">Truk</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label">Merek & Model</label>
+                    <div class="brand-model-row">
+                      <input
+                        type="text"
+                        class="form-input brand-input"
+                        formControlName="brand"
+                        placeholder="Toyota">
+                      <input
+                        type="text"
+                        class="form-input model-input"
+                        formControlName="model"
+                        placeholder="Avanza">
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -150,6 +192,10 @@
           <div class="summary-item">
             <span class="summary-label">Telepon:</span>
             <span class="summary-value">{{ clientForm.get('phone')?.value || '-' }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Total Kendaraan:</span>
+            <span class="summary-value">{{ vehicles.length }} kendaraan</span>
           </div>
         </div>
       </div>

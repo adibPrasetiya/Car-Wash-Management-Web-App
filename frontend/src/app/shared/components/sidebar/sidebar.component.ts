@@ -33,7 +33,21 @@ export class SidebarComponent implements OnInit {
       id: 'clients',
       label: 'Clients',
       icon: 'fas fa-users',
-      route: '/main/clients'
+      isExpanded: false,
+      children: [
+        {
+          id: 'client-list',
+          label: 'Client List',
+          icon: 'fas fa-list',
+          route: '/main/client/client-list'
+        },
+        {
+          id: 'client-groups',
+          label: 'Client Groups',
+          icon: 'fas fa-layer-group',
+          route: '/main/client/groups'
+        }
+      ]
     },
     {
       id: 'vehicles',

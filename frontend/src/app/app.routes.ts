@@ -52,6 +52,15 @@ export const routes: Routes = [
             loadComponent: () => import('./features/cashier/transactions/transaction-detail/transaction-detail.component').then(m => m.TransactionDetailComponent)
           }
         ]
+      },
+      {
+        path: 'client',
+        children: [
+          {
+            path: 'client-list',
+            loadComponent: () => import('./features/cashier/client/client-list/client-list.component').then(m => m.ClientListComponent)
+          }
+        ]
       }
     ]
   },

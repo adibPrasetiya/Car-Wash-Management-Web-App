@@ -1,9 +1,10 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ClientService } from '../../../../core/services/client.service';
 import { ToastrService } from '../../../../core/services/toastr.service';
 import { CreateClientRequest, Client } from '../../../../core/models/client.model';
+import { CreateVehicleRequest } from '../../../../core/models/vehicle.model';
 
 @Component({
   selector: 'app-client-form',
@@ -20,6 +21,10 @@ export class ClientFormComponent implements OnInit {
   isSubmitting = false;
   currentStep: 'client' | 'vehicle' = 'client';
 
+  get vehicles(): FormArray {
+    return this.clientForm.get('vehicles') as FormArray;
+  }
+
   constructor(
     private fb: FormBuilder,
     private clientService: ClientService,
@@ -31,9 +36,8 @@ export class ClientFormComponent implements OnInit {
       email: ['', [Validators.email]],
       phone: ['', [Validators.required, Validators.pattern(/^(\+62|62|0)[0-9]{9,13}$/)]],
 
-      // Vehicle information
-      vehicleType: ['car', [Validators.required]],
-      plateNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{1,2}[0-9]{1,4}[A-Z]{1,3}$/i)]]
+      // Vehicles array
+      vehicles: this.fb.array([this.createVehicleFormGroup()])
     });
   }
 
@@ -44,16 +48,14 @@ export class ClientFormComponent implements OnInit {
   openModal(): void {
     this.isVisible = true;
     this.currentStep = 'client';
-    this.clientForm.reset({
-      vehicleType: 'car'
-    });
+    this.resetForm();
     this.visibilityChange.emit(this.isVisible);
   }
 
   closeModal(): void {
     this.isVisible = false;
     this.currentStep = 'client';
-    this.clientForm.reset();
+    this.resetForm();
     this.visibilityChange.emit(this.isVisible);
   }
 
@@ -92,6 +94,35 @@ export class ClientFormComponent implements OnInit {
     }
   }
 
+  // Vehicle management methods
+  createVehicleFormGroup(): FormGroup {
+    return this.fb.group({
+      plateNumber: ['', [Validators.required, Validators.pattern(/^[A-Z]{1,2}[0-9]{1,4}[A-Z]{1,3}$/i)]],
+      vehicleType: ['car', [Validators.required]],
+      brand: [''],
+      model: ['']
+    });
+  }
+
+  addVehicle(): void {
+    this.vehicles.push(this.createVehicleFormGroup());
+  }
+
+  removeVehicle(index: number): void {
+    if (this.vehicles.length > 1) {
+      this.vehicles.removeAt(index);
+    }
+  }
+
+  resetForm(): void {
+    this.clientForm.reset();
+    // Clear vehicles array and add one default vehicle
+    while (this.vehicles.length > 0) {
+      this.vehicles.removeAt(0);
+    }
+    this.vehicles.push(this.createVehicleFormGroup());
+  }
+
   // Form submission
   onSubmit(): void {
     if (this.clientForm.valid && !this.isSubmitting) {
@@ -102,9 +133,13 @@ export class ClientFormComponent implements OnInit {
         name: formValue.name,
         phone: formValue.phone,
         email: formValue.email || undefined,
-        plateNumber: formValue.plateNumber,
-        vehicleType: formValue.vehicleType,
-        type: 'U' // Registered user
+        type: 'U', // Registered user
+        vehicles: formValue.vehicles.map((vehicle: any) => ({
+          plateNumber: vehicle.plateNumber,
+          vehicleType: vehicle.vehicleType,
+          brand: vehicle.brand || undefined,
+          model: vehicle.model || undefined
+        } as CreateVehicleRequest))
       };
 
       this.clientService.createClient(clientData).subscribe({
@@ -169,9 +204,29 @@ export class ClientFormComponent implements OnInit {
       email: 'Email',
       phone: 'Nomor Telepon',
       vehicleType: 'Jenis Kendaraan',
-      plateNumber: 'Nomor Plat'
+      plateNumber: 'Nomor Plat',
+      brand: 'Merek',
+      model: 'Model'
     };
     return labels[fieldName] || fieldName;
+  }
+
+  getVehicleTypeText(vehicleType: string): string {
+    const types: { [key: string]: string } = {
+      'car': 'Mobil',
+      'motorcycle': 'Motor',
+      'truck': 'Truk'
+    };
+    return types[vehicleType] || vehicleType;
+  }
+
+  getVehicleTypeIcon(vehicleType: string): string {
+    const icons: { [key: string]: string } = {
+      'car': 'fas fa-car',
+      'motorcycle': 'fas fa-motorcycle',
+      'truck': 'fas fa-truck'
+    };
+    return icons[vehicleType] || 'fas fa-car';
   }
 
   // Handle modal background click

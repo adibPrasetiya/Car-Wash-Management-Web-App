@@ -12,14 +12,40 @@ export class ClientService {
 
   constructor(private http: HttpClient) { }
 
-  // Mock clients data for demonstration
+  // Mock clients data for demonstration with multiple vehicles
   private mockClients: Client[] = [
     {
       id: '1',
       name: 'Ahmad Rizki',
       phone: '+62812345678',
       email: 'ahmad@example.com',
-      plateNumber: 'B1234ABC',
+      vehicles: [
+        {
+          id: 'v1',
+          plateNumber: 'B1234ABC',
+          vehicleType: 'car',
+          brand: 'Toyota',
+          model: 'Avanza',
+          color: 'Silver',
+          year: 2020,
+          isActive: true,
+          createdAt: new Date('2023-06-01'),
+          updatedAt: new Date('2024-01-15')
+        },
+        {
+          id: 'v2',
+          plateNumber: 'B5555DEF',
+          vehicleType: 'motorcycle',
+          brand: 'Honda',
+          model: 'Vario',
+          color: 'Red',
+          year: 2022,
+          isActive: true,
+          createdAt: new Date('2023-08-01'),
+          updatedAt: new Date('2024-01-15')
+        }
+      ],
+      plateNumber: 'B1234ABC', // Backward compatibility
       vehicleType: 'car',
       type: 'U',
       isActive: true,
@@ -33,6 +59,20 @@ export class ClientService {
       name: 'Sarah Johnson',
       phone: '+62898765432',
       email: 'sarah@example.com',
+      vehicles: [
+        {
+          id: 'v3',
+          plateNumber: 'B5678XYZ',
+          vehicleType: 'motorcycle',
+          brand: 'Yamaha',
+          model: 'NMAX',
+          color: 'Blue',
+          year: 2021,
+          isActive: true,
+          createdAt: new Date('2023-08-15'),
+          updatedAt: new Date('2024-01-10')
+        }
+      ],
       plateNumber: 'B5678XYZ',
       vehicleType: 'motorcycle',
       type: 'U',
@@ -47,6 +87,32 @@ export class ClientService {
       name: 'Michael Chen',
       phone: '+62876543210',
       email: 'michael@example.com',
+      vehicles: [
+        {
+          id: 'v4',
+          plateNumber: 'B9999DEF',
+          vehicleType: 'car',
+          brand: 'Honda',
+          model: 'Civic',
+          color: 'Black',
+          year: 2019,
+          isActive: true,
+          createdAt: new Date('2023-03-10'),
+          updatedAt: new Date('2024-01-20')
+        },
+        {
+          id: 'v5',
+          plateNumber: 'B7777GHI',
+          vehicleType: 'truck',
+          brand: 'Isuzu',
+          model: 'ELF',
+          color: 'White',
+          year: 2018,
+          isActive: true,
+          createdAt: new Date('2023-05-15'),
+          updatedAt: new Date('2024-01-20')
+        }
+      ],
       plateNumber: 'B9999DEF',
       vehicleType: 'car',
       type: 'U',
@@ -61,6 +127,20 @@ export class ClientService {
       name: 'Lisa Wong',
       phone: '+62855666777',
       email: 'lisa@example.com',
+      vehicles: [
+        {
+          id: 'v6',
+          plateNumber: 'B1111GHI',
+          vehicleType: 'truck',
+          brand: 'Mitsubishi',
+          model: 'Canter',
+          color: 'Yellow',
+          year: 2020,
+          isActive: true,
+          createdAt: new Date('2023-11-20'),
+          updatedAt: new Date('2024-01-08')
+        }
+      ],
       plateNumber: 'B1111GHI',
       vehicleType: 'truck',
       type: 'U',
@@ -75,6 +155,20 @@ export class ClientService {
       name: 'David Kumar',
       phone: '+62813456789',
       email: 'david@example.com',
+      vehicles: [
+        {
+          id: 'v7',
+          plateNumber: 'B2222JKL',
+          vehicleType: 'car',
+          brand: 'Suzuki',
+          model: 'Ertiga',
+          color: 'White',
+          year: 2021,
+          isActive: true,
+          createdAt: new Date('2023-07-05'),
+          updatedAt: new Date('2024-01-12')
+        }
+      ],
       plateNumber: 'B2222JKL',
       vehicleType: 'car',
       type: 'U',
@@ -96,7 +190,7 @@ export class ClientService {
       client.isActive && (
         client.name.toLowerCase().includes(query.toLowerCase()) ||
         client.phone.toLowerCase().includes(query.toLowerCase()) ||
-        client.plateNumber.toLowerCase().includes(query.toLowerCase()) ||
+        (client.plateNumber && client.plateNumber.toLowerCase().includes(query.toLowerCase())) ||
         (client.email && client.email.toLowerCase().includes(query.toLowerCase()))
       )
     );
@@ -113,7 +207,7 @@ export class ClientService {
       filtered = filtered.filter(client =>
         client.name.toLowerCase().includes(params.search!.toLowerCase()) ||
         client.phone.toLowerCase().includes(params.search!.toLowerCase()) ||
-        client.plateNumber.toLowerCase().includes(params.search!.toLowerCase())
+        (client.plateNumber && client.plateNumber.toLowerCase().includes(params.search!.toLowerCase()))
       );
     }
 
@@ -149,9 +243,33 @@ export class ClientService {
   // Create new client
   createClient(clientData: CreateClientRequest): Observable<Client> {
     // In real app, this would be an HTTP call
+    const clientId = Date.now().toString();
+
+    // Create vehicles with proper IDs and client reference
+    const vehicles = clientData.vehicles.map((vehicleData, index) => ({
+      id: `${clientId}_v${index + 1}`,
+      clientId: clientId,
+      plateNumber: vehicleData.plateNumber,
+      vehicleType: vehicleData.vehicleType,
+      brand: vehicleData.brand,
+      model: vehicleData.model,
+      color: '', // Default empty
+      year: new Date().getFullYear(), // Default current year
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }));
+
     const newClient: Client = {
-      id: Date.now().toString(),
-      ...clientData,
+      id: clientId,
+      name: clientData.name,
+      phone: clientData.phone,
+      email: clientData.email,
+      vehicles: vehicles,
+      // Backward compatibility - use first vehicle
+      plateNumber: vehicles[0]?.plateNumber,
+      vehicleType: vehicles[0]?.vehicleType,
+      type: clientData.type,
       isActive: true,
       totalTransactions: 0,
       createdAt: new Date(),
@@ -169,9 +287,31 @@ export class ClientService {
       return of(null);
     }
 
-    const updatedClient = {
+    // Process vehicles if provided
+    let processedVehicles;
+    if (clientData.vehicles) {
+      processedVehicles = clientData.vehicles.map((vehicleData, index) => ({
+        id: `${id}_v${index + 1}`,
+        clientId: id,
+        plateNumber: vehicleData.plateNumber,
+        vehicleType: vehicleData.vehicleType,
+        brand: vehicleData.brand,
+        model: vehicleData.model,
+        color: this.mockClients[clientIndex].vehicles[index]?.color || '',
+        year: this.mockClients[clientIndex].vehicles[index]?.year || new Date().getFullYear(),
+        isActive: true,
+        createdAt: this.mockClients[clientIndex].vehicles[index]?.createdAt || new Date(),
+        updatedAt: new Date()
+      }));
+    }
+
+    const updatedClient: Client = {
       ...this.mockClients[clientIndex],
       ...clientData,
+      vehicles: processedVehicles || this.mockClients[clientIndex].vehicles,
+      // Update backward compatibility fields
+      plateNumber: processedVehicles?.[0]?.plateNumber || this.mockClients[clientIndex].plateNumber,
+      vehicleType: processedVehicles?.[0]?.vehicleType || this.mockClients[clientIndex].vehicleType,
       updatedAt: new Date()
     };
 
