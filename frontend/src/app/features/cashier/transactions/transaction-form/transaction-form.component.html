@@ -1,204 +1,198 @@
-<div class="container-fluid">
+<div class="transaction-form-container">
   <!-- Page Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h1 class="h3 mb-0 fw-bold text-dark">Transaksi Baru</h1>
-      <p class="text-muted mb-0">Tambahkan transaksi cuci mobil baru</p>
-    </div>
-    <button class="btn btn-outline-secondary" (click)="onCancel()">
-      <i class="fas fa-arrow-left me-2"></i>
-      Kembali
-    </button>
-  </div>
-
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <!-- Transaction Form Card -->
-      <div class="card shadow-sm">
-        <div class="card-header bg-orange text-white">
-          <h5 class="card-title mb-0">
-            <i class="fas fa-plus-circle me-2"></i>
-            Form Transaksi Baru
-          </h5>
-        </div>
-        <div class="card-body">
-          <form [formGroup]="transactionForm" (ngSubmit)="onSubmit()" novalidate>
-            <!-- Client Field -->
-            <div class="mb-4">
-              <label for="client" class="form-label fw-semibold">
-                <i class="fas fa-user me-2 text-orange"></i>
-                Nama Client <span class="text-danger">*</span>
-              </label>
-              <input
-                type="text"
-                id="client"
-                class="form-control form-control-lg"
-                [class.is-invalid]="isFieldInvalid('client')"
-                formControlName="client"
-                placeholder="Masukkan nama client"
-                autocomplete="off"
-              >
-              <div class="invalid-feedback" *ngIf="isFieldInvalid('client')">
-                <small>{{ getFieldError('client') }}</small>
-              </div>
-            </div>
-
-            <!-- Date Field -->
-            <div class="mb-4">
-              <label for="tanggal" class="form-label fw-semibold">
-                <i class="fas fa-calendar me-2 text-orange"></i>
-                Tanggal <span class="text-danger">*</span>
-              </label>
-              <input
-                type="date"
-                id="tanggal"
-                class="form-control form-control-lg"
-                [class.is-invalid]="isFieldInvalid('tanggal')"
-                formControlName="tanggal"
-              >
-              <div class="invalid-feedback" *ngIf="isFieldInvalid('tanggal')">
-                <small>{{ getFieldError('tanggal') }}</small>
-              </div>
-            </div>
-
-            <!-- Description Field -->
-            <div class="mb-4">
-              <label for="deskripsi" class="form-label fw-semibold">
-                <i class="fas fa-clipboard-list me-2 text-orange"></i>
-                Deskripsi Layanan <span class="text-danger">*</span>
-              </label>
-              <textarea
-                id="deskripsi"
-                class="form-control form-control-lg"
-                [class.is-invalid]="isFieldInvalid('deskripsi')"
-                formControlName="deskripsi"
-                placeholder="Contoh: Cuci mobil sedan reguler + wax"
-                rows="3"
-              ></textarea>
-              <div class="invalid-feedback" *ngIf="isFieldInvalid('deskripsi')">
-                <small>{{ getFieldError('deskripsi') }}</small>
-              </div>
-              <div class="form-text">
-                <i class="fas fa-lightbulb me-1"></i>
-                Jelaskan jenis layanan yang diberikan secara detail
-              </div>
-            </div>
-
-            <!-- Amount Field -->
-            <div class="mb-4">
-              <label for="jumlah" class="form-label fw-semibold">
-                <i class="fas fa-money-bill me-2 text-orange"></i>
-                Jumlah (IDR) <span class="text-danger">*</span>
-              </label>
-              <div class="input-group input-group-lg">
-                <span class="input-group-text">Rp</span>
-                <input
-                  type="number"
-                  id="jumlah"
-                  class="form-control"
-                  [class.is-invalid]="isFieldInvalid('jumlah')"
-                  formControlName="jumlah"
-                  placeholder="0"
-                  min="1000"
-                  step="1000"
-                >
-              </div>
-              <div class="invalid-feedback" *ngIf="isFieldInvalid('jumlah')">
-                <small>{{ getFieldError('jumlah') }}</small>
-              </div>
-              <div class="form-text">
-                <i class="fas fa-info-circle me-1"></i>
-                Minimal Rp 1.000, gunakan kelipatan 1000
-              </div>
-            </div>
-
-            <!-- Form Actions -->
-            <div class="d-flex justify-content-between pt-3">
-              <button
-                type="button"
-                class="btn btn-outline-secondary btn-lg"
-                (click)="onCancel()"
-                [disabled]="isSubmitting"
-              >
-                <i class="fas fa-times me-2"></i>
-                Batal
-              </button>
-              <button
-                type="submit"
-                class="btn btn-orange btn-lg"
-                [disabled]="isSubmitting || transactionForm.invalid"
-              >
-                <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
-                <i *ngIf="!isSubmitting" class="fas fa-save me-2"></i>
-                {{ isSubmitting ? 'Menyimpan...' : 'Simpan Transaksi' }}
-              </button>
-            </div>
-          </form>
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">New Transaction</h1>
+        <p class="page-subtitle">Create a new car wash transaction</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn-secondary" (click)="onCancel()">
+          <i class="fas fa-arrow-left"></i>
+          Back
+        </button>
+        <div class="biller-selector">
+          <label class="biller-label">Cashier:</label>
+          <span class="biller-name">{{ selectedBiller }}</span>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Quick Service Templates -->
-      <div class="card shadow-sm mt-4">
-        <div class="card-header bg-light">
-          <h6 class="card-title mb-0">
-            <i class="fas fa-star me-2 text-warning"></i>
-            Template Layanan Populer
-          </h6>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <div class="border rounded p-3 h-100 bg-light hover-card" style="cursor: pointer;"
-                   (click)="fillTemplate('Cuci mobil sedan reguler', 50000)">
-                <div class="d-flex align-items-center">
-                  <div class="bg-primary rounded-circle p-2 me-3">
-                    <i class="fas fa-car text-white"></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-1">Cuci Sedan Reguler</h6>
-                    <small class="text-muted">Rp 50.000</small>
-                  </div>
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Left Column: Client and Service Sections -->
+    <div class="left-column">
+      <form [formGroup]="orderForm">
+      <!-- Client Selection Section -->
+      <div class="client-selection-section">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-info">
+              <h3 class="section-title">Client Selection</h3>
+              <p class="section-subtitle">Choose client type and select customer</p>
+            </div>
+          </div>
+
+          <div class="section-content">
+            <!-- Client Type Toggle -->
+            <div class="client-type-selection">
+              <div class="client-type-options">
+                <button
+                  type="button"
+                  class="client-type-btn"
+                  [class.active]="selectedClientType === 'guest'"
+                  (click)="selectClientType('guest')">
+                  <i class="fas fa-user-plus"></i>
+                  <span>Guest</span>
+                </button>
+                <button
+                  type="button"
+                  class="client-type-btn"
+                  [class.active]="selectedClientType === 'registered'"
+                  (click)="selectClientType('registered')">
+                  <i class="fas fa-user-check"></i>
+                  <span>Registered</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Guest Client Form -->
+            <div class="guest-client-form" *ngIf="selectedClientType === 'guest'">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Customer Name</label>
+                  <input
+                    type="text"
+                    class="form-input"
+                    formControlName="customerName"
+                    placeholder="Enter customer name (optional)">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Vehicle Type</label>
+                  <select class="form-input" formControlName="vehicleType">
+                    <option value="car">Car</option>
+                    <option value="motorcycle">Motorcycle</option>
+                    <option value="truck">Truck</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">License Plate</label>
+                  <input
+                    type="text"
+                    class="form-input"
+                    formControlName="plateNumber"
+                    placeholder="e.g., B1234ABC">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Phone Number</label>
+                  <input
+                    type="tel"
+                    class="form-input"
+                    formControlName="phoneNumber"
+                    placeholder="e.g., +62812345678">
                 </div>
               </div>
             </div>
-            <div class="col-md-6">
-              <div class="border rounded p-3 h-100 bg-light hover-card" style="cursor: pointer;"
-                   (click)="fillTemplate('Cuci mobil SUV premium + wax', 120000)">
-                <div class="d-flex align-items-center">
-                  <div class="bg-success rounded-circle p-2 me-3">
-                    <i class="fas fa-car text-white"></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-1">Cuci SUV Premium</h6>
-                    <small class="text-muted">Rp 120.000</small>
+
+            <!-- Registered Client Search -->
+            <div class="registered-client-form" *ngIf="selectedClientType === 'registered'">
+              <div class="client-search-wrapper">
+                <div class="search-input-wrapper">
+                  <i class="fas fa-search search-icon"></i>
+                  <input
+                    type="text"
+                    class="search-input"
+                    placeholder="Search registered clients by name, phone, or license plate..."
+                    formControlName="clientSearchQuery"
+                    (input)="onClientSearch()">
+                </div>
+
+                <!-- Client Search Results -->
+                <div class="client-search-results" *ngIf="clientSearchResults.length > 0">
+                  <div class="client-results-list">
+                    <button
+                      type="button"
+                      class="client-result-item"
+                      *ngFor="let client of clientSearchResults"
+                      (click)="selectClient(client)">
+                      <div class="client-avatar">
+                        <span>{{ client.name.charAt(0).toUpperCase() }}</span>
+                      </div>
+                      <div class="client-info">
+                        <div class="client-name">{{ client.name }}</div>
+                        <div class="client-details">
+                          <span class="client-phone">{{ client.phone }}</span>
+                          <span class="client-plate">{{ client.plateNumber }}</span>
+                        </div>
+                      </div>
+                      <div class="client-type-badge">
+                        {{ getClientTypeText(client.type) }}
+                      </div>
+                    </button>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="border rounded p-3 h-100 bg-light hover-card" style="cursor: pointer;"
-                   (click)="fillTemplate('Cuci motor + detailing', 35000)">
-                <div class="d-flex align-items-center">
-                  <div class="bg-info rounded-circle p-2 me-3">
-                    <i class="fas fa-motorcycle text-white"></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-1">Cuci Motor</h6>
-                    <small class="text-muted">Rp 35.000</small>
+
+                <!-- No Results -->
+                <div class="no-results" *ngIf="clientSearchQuery && clientSearchResults.length === 0 && !isSearchingClients">
+                  <div class="no-results-content">
+                    <i class="fas fa-user-slash"></i>
+                    <p>No registered clients found</p>
+                    <button
+                      type="button"
+                      class="btn-outline"
+                      (click)="createNewClient()">
+                      <i class="fas fa-plus"></i>
+                      Register New Client
+                    </button>
                   </div>
                 </div>
+
+                <!-- Register New Client Button (Always Visible) -->
+                <div class="register-client-section" *ngIf="selectedClientType === 'registered'">
+                  <button
+                    type="button"
+                    class="btn-register-client"
+                    (click)="createNewClient()">
+                    <i class="fas fa-user-plus"></i>
+                    Daftar Client Baru
+                  </button>
+                </div>
               </div>
-            </div>
-            <div class="col-md-6">
-              <div class="border rounded p-3 h-100 bg-light hover-card" style="cursor: pointer;"
-                   (click)="fillTemplate('Cuci mobil hatchback + poles', 80000)">
-                <div class="d-flex align-items-center">
-                  <div class="bg-warning rounded-circle p-2 me-3">
-                    <i class="fas fa-car text-white"></i>
+
+              <!-- Selected Client Display -->
+              <div class="selected-client" *ngIf="selectedClient">
+                <div class="selected-client-header">
+                  <h4>Selected Client</h4>
+                  <button
+                    type="button"
+                    class="btn-clear"
+                    (click)="clearSelectedClient()">
+                    <i class="fas fa-times"></i>
+                    Change
+                  </button>
+                </div>
+                <div class="selected-client-info">
+                  <div class="client-avatar">
+                    <span>{{ selectedClient.name.charAt(0).toUpperCase() }}</span>
                   </div>
-                  <div>
-                    <h6 class="mb-1">Cuci Hatchback + Poles</h6>
-                    <small class="text-muted">Rp 80.000</small>
+                  <div class="client-details">
+                    <div class="client-name">{{ selectedClient.name }}</div>
+                    <div class="client-meta">
+                      <span class="client-phone">{{ selectedClient.phone }}</span>
+                      <span class="client-vehicle">{{ selectedClient.vehicleType | titlecase }} - {{ selectedClient.plateNumber }}</span>
+                    </div>
+                  </div>
+                  <div class="client-actions">
+                    <button
+                      type="button"
+                      class="btn-outline btn-sm"
+                      (click)="editClient(selectedClient)">
+                      <i class="fas fa-edit"></i>
+                      Edit
+                    </button>
                   </div>
                 </div>
               </div>
@@ -206,6 +200,266 @@
           </div>
         </div>
       </div>
+
+      <!-- Service Selection Section -->
+      <div class="services-section">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-info">
+              <h3 class="section-title">Service Selection</h3>
+              <p class="section-subtitle">{{ orderItems.length }} services selected</p>
+            </div>
+            <button
+              class="btn-clear"
+              (click)="clearAllItems()"
+              *ngIf="orderItems.length > 0">
+              <i class="fas fa-times"></i>
+              Clear
+            </button>
+          </div>
+
+          <div class="section-content">
+            <!-- Service Search -->
+              <div class="search-row">
+                <div class="search-column">
+                  <div class="search-input-wrapper">
+                    <i class="fas fa-search search-icon"></i>
+                    <input
+                      type="text"
+                      class="search-input"
+                      placeholder="Cari layanan cuci..."
+                      formControlName="searchQuery">
+                  </div>
+                </div>
+
+                <div class="actions-column">
+                  <button
+                    type="button"
+                    class="btn-outline"
+                    (click)="scanBarcode()">
+                    <i class="fas fa-barcode"></i>
+                    Scan
+                  </button>
+                </div>
+              </div>
+
+            <!-- Loading State -->
+            <div class="loading-services" *ngIf="isLoading">
+              <div class="loading-spinner"></div>
+              <p>Loading services...</p>
+            </div>
+
+            <!-- Services Grid -->
+            <div class="services-grid" *ngIf="!isLoading && filteredProducts.length > 0">
+              <div
+                class="service-card"
+                *ngFor="let product of filteredProducts; trackBy: trackByProductId"
+                [class.selected]="isProductSelected(product)"
+                (click)="toggleProductSelection(product)">
+                <div class="service-icon">
+                  <i class="fas fa-car-wash"></i>
+                </div>
+                <div class="service-content">
+                  <div class="service-name">{{ product.name }}</div>
+                  <div class="service-description">{{ product.description }}</div>
+                  <div class="service-price">{{ formatCurrency(product.price) }}</div>
+                </div>
+                <div class="service-badge" *ngIf="isProductSelected(product)">
+                  <span class="badge-count">{{ getProductQuantity(product) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- No Services Found -->
+            <div class="no-services" *ngIf="!isLoading && filteredProducts.length === 0">
+              <div class="no-services-icon">
+                <i class="fas fa-search"></i>
+              </div>
+              <p>No services found</p>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" *ngIf="!isLoading && filteredProducts.length === 0 && allProducts.length === 0">
+              <div class="empty-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+              <h3 class="empty-title">No services available</h3>
+              <p class="empty-subtitle">No car wash services found in the system</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      </form>
+    </div>
+
+    <!-- Right Column: Transaction Summary -->
+    <div class="right-column">
+      <div class="summary-section">
+        <div class="section-card">
+          <div class="section-header">
+            <div class="section-info">
+              <h3 class="section-title">Transaction Summary</h3>
+              <p class="section-subtitle">Invoice {{ invoiceNumber }}</p>
+            </div>
+          </div>
+
+          <div class="section-content">
+            <!-- Selected Services Display -->
+            <div class="selected-services" *ngIf="orderItems.length > 0">
+              <h4 class="services-title">Selected Services</h4>
+              <div class="services-list">
+                <div class="service-item" *ngFor="let item of orderItems; trackBy: trackByItemId">
+                  <div class="service-info">
+                    <div class="service-details">
+                      <div class="service-name">
+                        {{ item.productName }}
+                        <span class="service-sku">{{ item.sku }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="service-actions">
+                    <div class="quantity-controls-small">
+                      <button
+                        class="quantity-btn-small"
+                        (click)="updateQuantity(item.id, item.quantity - 1)">
+                        <i class="fas fa-minus"></i>
+                      </button>
+                      <span class="quantity-display">{{ item.quantity }}</span>
+                      <button
+                        class="quantity-btn-small"
+                        (click)="updateQuantity(item.id, item.quantity + 1)">
+                        <i class="fas fa-plus"></i>
+                      </button>
+                    </div>
+                    <div class="service-subtotal">{{ formatCurrency(item.subtotal) }}</div>
+                    <button
+                      class="remove-btn-small"
+                      (click)="removeItem(item.id)">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Customer Display -->
+            <div class="customer-display" *ngIf="orderForm.get('customerName')?.value">
+              <div class="customer-info">
+                <div class="customer-avatar">
+                  <span>{{ (orderForm.get('customerName')?.value || 'G').charAt(0).toUpperCase() }}</span>
+                </div>
+                <div class="customer-details">
+                  <div class="customer-name">{{ orderForm.get('customerName')?.value || 'Walk-in Customer' }}</div>
+                  <div class="customer-vehicle" *ngIf="orderForm.get('plateNumber')?.value">
+                    {{ orderForm.get('vehicleType')?.value | titlecase }} - {{ orderForm.get('plateNumber')?.value }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Breakdown -->
+            <div class="payment-breakdown">
+              <div class="payment-line">
+                <span class="payment-label">Subtotal</span>
+                <span class="payment-value">{{ formatCurrency(subtotal) }}</span>
+              </div>
+
+              <div class="payment-line">
+                <span class="payment-label">Pajak (5%)</span>
+                <span class="payment-value">{{ formatCurrency(tax) }}</span>
+              </div>
+
+              <div class="payment-line discount-line">
+                <span class="payment-label">Diskon</span>
+                <div class="discount-input-inline">
+                  <input
+                    type="number"
+                    class="discount-input-small"
+                    placeholder="0"
+                    [(ngModel)]="discount"
+                    (input)="onDiscountChange()">
+                  <span class="payment-value discount">{{ formatCurrency(discount) }}</span>
+                </div>
+              </div>
+
+              <div class="payment-divider"></div>
+
+              <div class="payment-total">
+                <span class="total-label">Total Bayar</span>
+                <span class="total-value">{{ formatCurrency(total) }}</span>
+              </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="payment-method-section">
+              <h4 class="payment-method-title">Payment Method</h4>
+              <div class="payment-methods">
+                <button
+                  type="button"
+                  class="payment-method"
+                  [class.active]="selectedPaymentMethod === 'cash'"
+                  (click)="selectedPaymentMethod = 'cash'">
+                  <i class="fas fa-money-bill-wave"></i>
+                  <span>Cash</span>
+                </button>
+                <button
+                  type="button"
+                  class="payment-method"
+                  [class.active]="selectedPaymentMethod === 'card'"
+                  (click)="selectedPaymentMethod = 'card'">
+                  <i class="fas fa-credit-card"></i>
+                  <span>Card</span>
+                </button>
+                <button
+                  type="button"
+                  class="payment-method"
+                  [class.active]="selectedPaymentMethod === 'scan'"
+                  (click)="selectedPaymentMethod = 'scan'">
+                  <i class="fas fa-qrcode"></i>
+                  <span>Scan</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+              <button
+                class="btn-primary"
+                [disabled]="orderItems.length === 0 || isSubmitting"
+                (click)="makePayment()">
+                <span *ngIf="isSubmitting" class="spinner"></span>
+                <i *ngIf="!isSubmitting" class="fas fa-check"></i>
+                <span>{{ isSubmitting ? 'Processing...' : 'Complete Transaction' }}</span>
+              </button>
+
+              <div class="secondary-actions">
+                <button
+                  class="btn-outline btn-sm"
+                  [disabled]="orderItems.length === 0"
+                  (click)="previewTicket()"
+                  title="Preview Tiket Antrian">
+                  <i class="fas fa-eye"></i>
+                  Preview Tiket
+                </button>
+                <button
+                  class="btn-secondary"
+                  (click)="cancelOrder()">
+                  <i class="fas fa-times"></i>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- Client Registration Modal -->
+  <app-client-form
+    [isVisible]="showClientFormModal"
+    (visibilityChange)="onClientFormModalVisibilityChange($event)"
+    (clientCreated)="onClientCreated($event)">
+  </app-client-form>
 </div>

@@ -1,0 +1,198 @@
+<!-- Modal Overlay -->
+<div class="modal-overlay"
+     *ngIf="isVisible"
+     (click)="onModalBackgroundClick($event)">
+
+  <!-- Modal Content -->
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <div class="modal-title-section">
+        <h2 class="modal-title">
+          <i class="fas fa-user-plus"></i>
+          Daftar Client Baru
+        </h2>
+        <p class="modal-subtitle">
+          {{ currentStep === 'client' ? 'Informasi Client' : 'Informasi Kendaraan' }}
+        </p>
+      </div>
+      <button
+        class="modal-close-btn"
+        (click)="closeModal()"
+        type="button">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Step Indicator -->
+    <div class="step-indicator">
+      <div class="step" [class.active]="currentStep === 'client'" [class.completed]="currentStep === 'vehicle'">
+        <div class="step-number">
+          <i class="fas fa-user" *ngIf="currentStep === 'client'"></i>
+          <i class="fas fa-check" *ngIf="currentStep === 'vehicle'"></i>
+        </div>
+        <span class="step-label">Data Client</span>
+      </div>
+      <div class="step-divider"></div>
+      <div class="step" [class.active]="currentStep === 'vehicle'">
+        <div class="step-number">
+          <i class="fas fa-car"></i>
+        </div>
+        <span class="step-label">Data Kendaraan</span>
+      </div>
+    </div>
+
+    <!-- Form Content -->
+    <form [formGroup]="clientForm" (ngSubmit)="onSubmit()" (keydown)="onKeyDown($event)">
+
+      <!-- Step 1: Client Information -->
+      <div class="form-step" *ngIf="currentStep === 'client'">
+        <div class="form-section">
+          <h3 class="section-title">Informasi Client</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">Nama Lengkap</label>
+              <input
+                type="text"
+                class="form-input"
+                [class.error]="isFieldInvalid('name')"
+                formControlName="name"
+                placeholder="Masukkan nama lengkap">
+              <div class="error-message" *ngIf="isFieldInvalid('name')">
+                {{ getFieldError('name') }}
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input
+                type="email"
+                class="form-input"
+                [class.error]="isFieldInvalid('email')"
+                formControlName="email"
+                placeholder="contoh@email.com (opsional)">
+              <div class="error-message" *ngIf="isFieldInvalid('email')">
+                {{ getFieldError('email') }}
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">Nomor Telepon</label>
+              <input
+                type="tel"
+                class="form-input"
+                [class.error]="isFieldInvalid('phone')"
+                formControlName="phone"
+                placeholder="+628123456789">
+              <div class="error-message" *ngIf="isFieldInvalid('phone')">
+                {{ getFieldError('phone') }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Vehicle Information -->
+      <div class="form-step" *ngIf="currentStep === 'vehicle'">
+        <div class="form-section">
+          <h3 class="section-title">Informasi Kendaraan</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">Jenis Kendaraan</label>
+              <select
+                class="form-input"
+                [class.error]="isFieldInvalid('vehicleType')"
+                formControlName="vehicleType">
+                <option value="car">Mobil</option>
+                <option value="motorcycle">Motor</option>
+                <option value="truck">Truk</option>
+              </select>
+              <div class="error-message" *ngIf="isFieldInvalid('vehicleType')">
+                {{ getFieldError('vehicleType') }}
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label required">Nomor Plat</label>
+              <input
+                type="text"
+                class="form-input"
+                [class.error]="isFieldInvalid('plateNumber')"
+                formControlName="plateNumber"
+                placeholder="contoh: B1234ABC"
+                style="text-transform: uppercase;">
+              <div class="error-message" *ngIf="isFieldInvalid('plateNumber')">
+                {{ getFieldError('plateNumber') }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Client Summary -->
+        <div class="client-summary">
+          <h4 class="summary-title">Ringkasan Data Client</h4>
+          <div class="summary-item">
+            <span class="summary-label">Nama:</span>
+            <span class="summary-value">{{ clientForm.get('name')?.value || '-' }}</span>
+          </div>
+          <div class="summary-item" *ngIf="clientForm.get('email')?.value">
+            <span class="summary-label">Email:</span>
+            <span class="summary-value">{{ clientForm.get('email')?.value }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Telepon:</span>
+            <span class="summary-value">{{ clientForm.get('phone')?.value || '-' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <!-- Step 1 Actions -->
+        <div class="action-buttons" *ngIf="currentStep === 'client'">
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="closeModal()">
+            <i class="fas fa-times"></i>
+            Batal
+          </button>
+          <button
+            type="button"
+            class="btn-primary"
+            (click)="nextStep()">
+            Selanjutnya
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- Step 2 Actions -->
+        <div class="action-buttons" *ngIf="currentStep === 'vehicle'">
+          <button
+            type="button"
+            class="btn-secondary"
+            (click)="previousStep()">
+            <i class="fas fa-arrow-left"></i>
+            Kembali
+          </button>
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="isSubmitting || !clientForm.valid">
+            <span *ngIf="isSubmitting" class="spinner"></span>
+            <i *ngIf="!isSubmitting" class="fas fa-check"></i>
+            {{ isSubmitting ? 'Mendaftar...' : 'Daftar Client' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
