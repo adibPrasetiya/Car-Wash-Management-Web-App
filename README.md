@@ -11,15 +11,40 @@ Sistem manajemen cuci mobil yang dibangun dengan **NestJS**, **Angular 19**, **P
 - ✅ Auto refresh token
 - ✅ Auth guards & interceptors
 
+### 👥 **Client Management System**
+- ✅ Full CRUD operations untuk client
+- ✅ Multiple vehicles per client
+- ✅ Search dan filtering dengan pagination
+- ✅ Vehicle management terintegrasi
+- ✅ Form validation dan error handling
+- ✅ Real-time data synchronization
+
+### 🚗 **Vehicle Management**
+- ✅ Standalone vehicle operations
+- ✅ Vehicle type support (car, motorcycle, truck)
+- ✅ Brand, model, year, color tracking
+- ✅ Client-vehicle relationship management
+- ✅ Search across vehicle data
+
+### 💰 **Transaction System**
+- ✅ Transaction creation dengan vehicle selection
+- ✅ Multiple vehicle support per transaction
+- ✅ Status tracking (pending, in_progress, completed, cancelled)
+- ✅ Client integration for registered users
+- ✅ Guest transaction support
+
 ### 🎨 **UI/UX**
 - ✅ Responsive design dengan Bootstrap 5
 - ✅ Orange brand theme
-- ✅ Modern login interface
+- ✅ Modern component interfaces
 - ✅ FontAwesome icons
 - ✅ Loading states & error handling
+- ✅ Modal dialogs untuk forms
+- ✅ Advanced filtering dan search
 
 ### 🧪 **Testing**
-- ✅ Unit tests untuk AuthService dengan Jest
+- ✅ Unit tests untuk services dengan Jest
+- ✅ Frontend-backend integration
 - ✅ Mocking & test coverage
 
 ## 🏗️ **Tech Stack**
@@ -104,6 +129,25 @@ Setelah menjalankan seeder, gunakan credentials berikut:
 - `POST /auth/login` - Login user
 - `POST /auth/refresh` - Refresh access token
 
+### Client Management
+- `GET /clients` - Get clients dengan pagination dan search
+- `GET /clients/search?q=query` - Search clients
+- `GET /clients/:id` - Get client by ID
+- `POST /clients` - Create new client dengan vehicles
+- `PUT /clients/:id` - Update client information
+- `DELETE /clients/:id` - Delete client
+
+### Vehicle Management
+- `POST /clients/:id/vehicles` - Add vehicle ke client
+- `DELETE /clients/:id/vehicles/:vehicleId` - Remove vehicle dari client
+- `GET /vehicles` - Get vehicles dengan filtering
+- `GET /vehicles/search?q=query` - Search vehicles
+- `GET /vehicles/client/:clientId` - Get vehicles by client
+- `GET /vehicles/:id` - Get vehicle by ID
+- `POST /vehicles` - Create standalone vehicle
+- `PUT /vehicles/:id` - Update vehicle
+- `DELETE /vehicles/:id` - Delete vehicle
+
 ### Request/Response Examples
 
 #### Login Request
@@ -129,6 +173,51 @@ POST /auth/login
 }
 ```
 
+#### Create Client Request
+```json
+POST /clients
+{
+  "name": "John Doe",
+  "phone": "+62812345678",
+  "email": "john@example.com",
+  "vehicles": [
+    {
+      "plateNumber": "B1234ABC",
+      "vehicleType": "car",
+      "brand": "Toyota",
+      "model": "Avanza",
+      "year": 2020,
+      "color": "Silver"
+    }
+  ]
+}
+```
+
+#### Client Response
+```json
+{
+  "id": 1,
+  "name": "John Doe",
+  "phone": "+62812345678",
+  "email": "john@example.com",
+  "vehicles": [
+    {
+      "id": "vehicle1",
+      "plateNumber": "B1234ABC",
+      "vehicleType": "car",
+      "brand": "Toyota",
+      "model": "Avanza",
+      "year": 2020,
+      "color": "Silver",
+      "createdAt": "2024-01-20T10:30:00Z",
+      "updatedAt": "2024-01-20T10:30:00Z"
+    }
+  ],
+  "createdAt": "2024-01-20T10:30:00Z",
+  "updatedAt": "2024-01-20T10:30:00Z"
+}
+```
+
 ## 🗃️ **Database Schema**
 
 ### Users Table
@@ -148,6 +237,43 @@ POST /auth/login
 - name: VARCHAR
 - phone: VARCHAR (Unique, Optional)
 - email: VARCHAR (Unique, Optional)
+- createdAt: DATETIME
+- updatedAt: DATETIME
+```
+
+### Vehicles Table
+```sql
+- id: STRING (Primary Key, CUID)
+- clientId: INT (Foreign Key, Optional)
+- plateNumber: VARCHAR
+- vehicleType: VARCHAR ('car' | 'motorcycle' | 'truck')
+- brand: VARCHAR (Optional)
+- model: VARCHAR (Optional)
+- year: INT (Optional)
+- color: VARCHAR (Optional)
+- createdAt: DATETIME
+- updatedAt: DATETIME
+```
+
+### Transactions Table
+```sql
+- transactionId: STRING (Primary Key)
+- transactionNumber: VARCHAR (Unique, Format: U0001/P0001)
+- clientId: INT (Foreign Key, Optional)
+- clientName: VARCHAR
+- clientType: VARCHAR ('U' | 'P')
+- vehicleId: STRING (Foreign Key, Optional)
+- vehicleType: VARCHAR
+- plateNumber: VARCHAR (Optional)
+- vehicleBrand: VARCHAR (Optional)
+- vehicleModel: VARCHAR (Optional)
+- serviceType: VARCHAR
+- totalAmount: DECIMAL(10,2)
+- status: VARCHAR ('pending' | 'in_progress' | 'completed' | 'cancelled')
+- cashierId: VARCHAR
+- cashierName: VARCHAR
+- notes: TEXT (Optional)
+- date: DATETIME
 - createdAt: DATETIME
 - updatedAt: DATETIME
 ```
@@ -242,9 +368,12 @@ carwash-web/
 │   │   │   ├── auth/          # Authentication module
 │   │   │   ├── user/          # User management
 │   │   │   ├── client/        # Client management
+│   │   │   ├── vehicle/       # Vehicle management
+│   │   │   ├── transaction/   # Transaction management
 │   │   │   └── ...
-│   │   ├── prisma/            # Prisma service
-│   │   └── core/              # Core functionality
+│   │   ├── config/            # Prisma service & config
+│   │   ├── common/            # DTOs, guards, filters
+│   │   └── utils/             # Utility functions
 │   ├── prisma/
 │   │   ├── schema.prisma      # Database schema
 │   │   └── seed.ts            # Database seeder
@@ -253,9 +382,17 @@ carwash-web/
 │   ├── src/
 │   │   ├── app/
 │   │   │   ├── core/          # Core services & guards
+│   │   │   │   ├── models/    # TypeScript interfaces
+│   │   │   │   ├── services/  # API services
+│   │   │   │   └── guards/    # Route guards
 │   │   │   ├── features/      # Feature modules
-│   │   │   │   └── auth/      # Authentication pages
-│   │   │   └── shared/        # Shared components
+│   │   │   │   ├── auth/      # Authentication pages
+│   │   │   │   ├── cashier/   # Cashier features
+│   │   │   │   │   ├── client/       # Client management
+│   │   │   │   │   └── transactions/ # Transaction management
+│   │   │   │   └── activation/# Device activation
+│   │   │   ├── shared/        # Shared components
+│   │   │   └── layout/        # Layout components
 │   │   └── styles.css         # Global styles
 │   └── ...
 └── README.md
@@ -289,16 +426,46 @@ PORT=3000
 NODE_ENV=development
 ```
 
+## 🚀 **Getting Started dengan Client Management**
+
+Sistem client management sudah terintegrasi penuh dengan backend! Untuk menggunakan:
+
+### 1. **Setup Database**
+```bash
+cd backend
+# Reset database (development only)
+npx prisma migrate reset --force
+# Or create new migration
+npx prisma migrate dev --name update_vehicle_schema
+```
+
+### 2. **Start Backend & Frontend**
+```bash
+# Terminal 1 - Backend
+cd backend && npm run start:dev
+
+# Terminal 2 - Frontend
+cd frontend && npm start
+```
+
+### 3. **Akses Client Management**
+- Login sebagai cashier
+- Navigate ke Client Management
+- Test create, search, edit, delete clients
+- Test vehicle management per client
+
 ## 📝 **Next Steps**
 
-Sistem login sudah lengkap dan siap digunakan! Untuk pengembangan selanjutnya, Anda bisa:
+Sistem client management sudah lengkap! Untuk pengembangan selanjutnya:
 
-1. ✅ **Implement dashboard components**
-2. ✅ **Add transaction management**
-3. ✅ **Create client management**
-4. ✅ **Add service management**
-5. ✅ **Implement reporting**
-6. ✅ **Add real-time notifications**
+1. ✅ **Authentication System**
+2. ✅ **Client Management dengan Multiple Vehicles**
+3. ✅ **Transaction System dengan Vehicle Selection**
+4. ✅ **Dashboard Components**
+5. 🔄 **Service Package Management**
+6. 🔄 **Reporting & Analytics**
+7. 🔄 **Real-time Notifications**
+8. 🔄 **Loyalty Program**
 
 ## 🤝 **Contributing**
 

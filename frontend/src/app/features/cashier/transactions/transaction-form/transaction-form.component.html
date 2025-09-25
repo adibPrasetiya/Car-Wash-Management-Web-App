@@ -95,6 +95,24 @@
                     placeholder="e.g., +62812345678">
                 </div>
               </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Vehicle Brand</label>
+                  <input
+                    type="text"
+                    class="form-input"
+                    formControlName="vehicleBrand"
+                    placeholder="e.g., Toyota (optional)">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Vehicle Model</label>
+                  <input
+                    type="text"
+                    class="form-input"
+                    formControlName="vehicleModel"
+                    placeholder="e.g., Avanza (optional)">
+                </div>
+              </div>
             </div>
 
             <!-- Registered Client Search -->
@@ -182,7 +200,7 @@
                     <div class="client-name">{{ selectedClient.name }}</div>
                     <div class="client-meta">
                       <span class="client-phone">{{ selectedClient.phone }}</span>
-                      <span class="client-vehicle">{{ selectedClient.vehicleType | titlecase }} - {{ selectedClient.plateNumber }}</span>
+                      <span class="client-vehicles">{{ availableVehicles.length }} vehicle(s)</span>
                     </div>
                   </div>
                   <div class="client-actions">
@@ -193,6 +211,87 @@
                       <i class="fas fa-edit"></i>
                       Edit
                     </button>
+                  </div>
+                </div>
+
+                <!-- Vehicle Selection -->
+                <div class="vehicle-selection">
+                  <div class="vehicle-selection-header">
+                    <h5>Select Vehicle</h5>
+                    <span class="vehicle-count">{{ availableVehicles.length }} available</span>
+                  </div>
+
+                  <div class="vehicles-list" *ngIf="availableVehicles.length > 0">
+                    <button
+                      type="button"
+                      class="vehicle-item"
+                      [class.selected]="selectedVehicle?.id === vehicle.id"
+                      *ngFor="let vehicle of availableVehicles"
+                      (click)="selectVehicle(vehicle)">
+                      <div class="vehicle-icon">
+                        <i [class]="getVehicleTypeIcon(vehicle.vehicleType)"></i>
+                      </div>
+                      <div class="vehicle-info">
+                        <div class="vehicle-plate">{{ vehicle.plateNumber }}</div>
+                        <div class="vehicle-details">
+                          <span class="vehicle-brand-model">{{ vehicle.brand }} {{ vehicle.model }}</span>
+                          <span class="vehicle-type">{{ getVehicleTypeText(vehicle.vehicleType) }}</span>
+                        </div>
+                      </div>
+                      <div class="vehicle-select-indicator" *ngIf="selectedVehicle?.id === vehicle.id">
+                        <i class="fas fa-check"></i>
+                      </div>
+                    </button>
+                  </div>
+
+                  <div class="no-vehicles" *ngIf="availableVehicles.length === 0">
+                    <div class="no-vehicles-content">
+                      <i class="fas fa-car"></i>
+                      <p>No vehicles registered for this client</p>
+                    </div>
+                  </div>
+
+                  <!-- Manual Vehicle Entry for Guest or when no vehicle selected -->
+                  <div class="manual-vehicle-entry" *ngIf="!selectedVehicle">
+                    <div class="manual-entry-header">
+                      <span>Or enter vehicle details manually:</span>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label">Vehicle Type</label>
+                        <select class="form-input" formControlName="vehicleType">
+                          <option value="car">Car</option>
+                          <option value="motorcycle">Motorcycle</option>
+                          <option value="truck">Truck</option>
+                        </select>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">License Plate</label>
+                        <input
+                          type="text"
+                          class="form-input"
+                          formControlName="plateNumber"
+                          placeholder="e.g., B1234ABC">
+                      </div>
+                    </div>
+                    <div class="form-row">
+                      <div class="form-group">
+                        <label class="form-label">Brand</label>
+                        <input
+                          type="text"
+                          class="form-input"
+                          formControlName="vehicleBrand"
+                          placeholder="e.g., Toyota">
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Model</label>
+                        <input
+                          type="text"
+                          class="form-input"
+                          formControlName="vehicleModel"
+                          placeholder="e.g., Avanza">
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

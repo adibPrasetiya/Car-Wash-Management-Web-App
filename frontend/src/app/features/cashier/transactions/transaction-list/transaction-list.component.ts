@@ -317,6 +317,28 @@ export class TransactionListComponent implements OnInit {
     }
   }
 
+  getVehicleTypeIcon(vehicleType: string): string {
+    const icons: { [key: string]: string } = {
+      'car': 'fas fa-car',
+      'motorcycle': 'fas fa-motorcycle',
+      'truck': 'fas fa-truck'
+    };
+    return icons[vehicleType] || 'fas fa-car';
+  }
+
+  getVehicleBrandModel(transaction: Transaction): string {
+    const brand = transaction.vehicleBrand || '';
+    const model = transaction.vehicleModel || '';
+    if (brand && model) {
+      return `${brand} ${model}`;
+    } else if (brand) {
+      return brand;
+    } else if (model) {
+      return model;
+    }
+    return '';
+  }
+
   getClientTypeText(clientType: string): string {
     return clientType === 'U' ? 'Registered' : 'Guest';
   }

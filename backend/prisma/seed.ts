@@ -88,12 +88,17 @@ async function main() {
 
   // Create sample vehicle
   const vehicle = await prisma.vehicle.upsert({
-    where: { id: 1 },
+    where: { id: 'vehicle1' },
     update: {},
     create: {
+      id: 'vehicle1',
       clientId: client.id,
-      plate: 'B 1234 ABC',
-      type: 'car',
+      plateNumber: 'B 1234 ABC',
+      vehicleType: 'car',
+      brand: 'Toyota',
+      model: 'Camry',
+      year: 2020,
+      color: 'Silver',
     },
   });
 

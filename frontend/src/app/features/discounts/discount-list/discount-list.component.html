@@ -1,0 +1,212 @@
+<div class="discount-list-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">Discounts</h1>
+        <p class="page-subtitle">Manage discount offers and promotions</p>
+      </div>
+      <button class="btn-primary" (click)="onAddDiscount()">
+        <i class="fas fa-plus"></i>
+        New Discount
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="search-section">
+      <div class="search-input-wrapper">
+        <i class="fas fa-search search-icon"></i>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search by name or description..."
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          (input)="onSearch()"
+        />
+        <button
+          *ngIf="searchQuery"
+          class="clear-search-btn"
+          (click)="clearSearch()"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-section">
+      <div class="filter-group">
+        <label for="statusFilter" class="filter-label">Status:</label>
+        <select
+          id="statusFilter"
+          class="filter-select"
+          [(ngModel)]="statusFilter"
+          (change)="onStatusFilterChange()"
+        >
+          <option value="all">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Loading discounts...</p>
+  </div>
+
+  <!-- Discounts Table -->
+  <div *ngIf="!isLoading" class="discounts-table-container">
+    <div class="table-header">
+      <div class="table-info">
+        <h3 class="table-title">Discounts</h3>
+        <p class="table-subtitle">{{ totalCount }} total discounts</p>
+      </div>
+
+      <div class="page-size-selector">
+        <label for="pageSize">Show:</label>
+        <select
+          id="pageSize"
+          [(ngModel)]="pageSize"
+          (change)="onPageSizeChange()"
+        >
+          <option *ngFor="let size of pageSizeOptions" [value]="size">
+            {{ size }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <!-- Discounts Table -->
+      <table class="discounts-table">
+        <thead>
+          <tr>
+            <th>Discount Name</th>
+            <th>Description</th>
+            <th>Type</th>
+            <th>Value</th>
+            <th>Status</th>
+            <th>Validity</th>
+            <th>Created Date</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let discount of discounts; trackBy: trackById"
+          >
+            <td class="discount-name">{{ discount.name }}</td>
+            <td class="description" [title]="discount.description || 'No description'">
+              {{ discount.description || 'No description' }}
+            </td>
+            <td class="type">
+              <span class="type-badge" [class]="discount.type"
+                    [title]="discount.type === 'percentage' ? 'Percentage Discount' : 'Fixed Amount Discount'">
+                {{ discount.type === 'percentage' ? '%' : 'Fixed' }}
+              </span>
+            </td>
+            <td class="value">{{ formatDiscountValue(discount) }}</td>
+            <td>
+              <span class="status-badge" [class]="discount.isActive ? 'active' : 'inactive'">
+                {{ discount.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td class="validity">{{ formatValidityPeriod(discount) }}</td>
+            <td>
+              <div class="date-info">
+                <div class="date">{{ formatDate(discount.createdAt) }}</div>
+                <div class="time">{{ formatTime(discount.createdAt) }}</div>
+              </div>
+            </td>
+            <td>
+              <div class="action-menu-container">
+                <button
+                  class="action-button"
+                  [class.active]="isActionMenuOpen(discount.id)"
+                  (click)="toggleActionMenu(discount.id, $event)"
+                >
+                  <i class="fas fa-ellipsis-h"></i>
+                </button>
+
+                <div
+                  class="action-menu"
+                  [class.show]="isActionMenuOpen(discount.id)"
+                >
+                  <button
+                    class="action-menu-item"
+                    (click)="onEditDiscount(discount.id)"
+                  >
+                    <i class="fas fa-edit"></i>
+                    <span>Edit</span>
+                  </button>
+                  <div class="action-menu-divider"></div>
+                  <button
+                    class="action-menu-item danger"
+                    (click)="onDeleteDiscount(discount)"
+                  >
+                    <i class="fas fa-trash"></i>
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="discounts.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <i class="fas fa-percentage"></i>
+        </div>
+        <h3 class="empty-title">No discounts found</h3>
+        <p class="empty-subtitle">Start by adding your first discount offer</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" *ngIf="discounts.length > 0">
+      <div class="pagination-info">
+        Showing {{ (currentPage - 1) * pageSize + 1 }} to
+        {{ Math.min(currentPage * pageSize, totalCount) }} of
+        {{ totalCount }} entries
+      </div>
+
+      <div class="pagination-controls">
+        <button
+          class="pagination-btn"
+          [disabled]="currentPage === 1"
+          (click)="onPageChange(currentPage - 1)"
+        >
+          <i class="fas fa-chevron-left"></i>
+          Previous
+        </button>
+
+        <div class="page-numbers">
+          <button
+            *ngFor="let page of getPageNumbers()"
+            class="page-number"
+            [class.active]="page === currentPage"
+            (click)="onPageChange(page)"
+          >
+            {{ page }}
+          </button>
+        </div>
+
+        <button
+          class="pagination-btn"
+          [disabled]="currentPage === totalPages"
+          (click)="onPageChange(currentPage + 1)"
+        >
+          Next
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

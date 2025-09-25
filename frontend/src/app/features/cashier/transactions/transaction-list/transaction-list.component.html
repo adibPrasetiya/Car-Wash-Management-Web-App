@@ -197,7 +197,7 @@
             <th>Name</th>
             <th>Transaction ID</th>
             <th>Transaction reference</th>
-            <th>Category</th>
+            <th>Vehicle</th>
             <th>Date</th>
             <th>Status</th>
             <th>Amount</th>
@@ -230,8 +230,20 @@
             </td>
             <td class="transaction-id">{{ transaction.transactionId }}</td>
             <td class="transaction-ref">{{ transaction.transactionNumber }}</td>
-            <td class="category">
-              {{ getVehicleTypeText(transaction.vehicleType) }}
+            <td class="vehicle-info">
+              <div class="vehicle-details">
+                <div class="vehicle-primary">
+                  <i [class]="getVehicleTypeIcon(transaction.vehicleType)"></i>
+                  <span class="plate-number">{{ transaction.plateNumber }}</span>
+                </div>
+                <div class="vehicle-secondary" *ngIf="transaction.vehicleBrand || transaction.vehicleModel">
+                  <span class="vehicle-brand-model">{{ getVehicleBrandModel(transaction) }}</span>
+                  <span class="vehicle-type-text">{{ getVehicleTypeText(transaction.vehicleType) }}</span>
+                </div>
+                <div class="vehicle-type-only" *ngIf="!transaction.vehicleBrand && !transaction.vehicleModel">
+                  <span class="vehicle-type-text">{{ getVehicleTypeText(transaction.vehicleType) }}</span>
+                </div>
+              </div>
             </td>
             <td>
               <div class="date-info">

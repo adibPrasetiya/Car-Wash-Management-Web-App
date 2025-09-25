@@ -1,16 +1,16 @@
 import { Vehicle, CreateVehicleRequest } from './vehicle.model';
 
 export interface Client {
-  id: string;
+  id: number;
   name: string;
-  phone: string;
+  phone?: string;
   email?: string;
   vehicles: Vehicle[];
   // Keep for backward compatibility
   plateNumber?: string;
   vehicleType?: 'car' | 'motorcycle' | 'truck';
-  type: 'U' | 'P'; // U = registered user, P = guest
-  isActive: boolean;
+  type?: 'U' | 'P'; // U = registered user, P = guest
+  isActive?: boolean;
   totalTransactions?: number;
   lastVisit?: Date;
   address?: string;
@@ -20,10 +20,9 @@ export interface Client {
 
 export interface CreateClientRequest {
   name: string;
-  phone: string;
+  phone?: string;
   email?: string;
-  type: 'U' | 'P';
-  vehicles: CreateVehicleRequest[];
+  vehicles?: CreateVehicleRequest[];
 }
 
 export interface ClientSearchParams {

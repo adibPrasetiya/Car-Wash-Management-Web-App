@@ -10,6 +10,10 @@ import { LoyaltyModule } from './modules/loyalty/loyalty.module';
 import { UserModule } from './modules/user/user.module';
 import { PrismaModule } from './config/prisma.module';
 import { ActivationModule } from './modules/activation/activation.module';
+import { ServiceModule } from './modules/service/service.module';
+import { DiscountService } from './modules/discount/discount.service';
+import { DiscountController } from './modules/discount/discount.controller';
+import { DiscountModule } from './modules/discount/discount.module';
 
 @Module({
   imports: [
@@ -24,8 +28,10 @@ import { ActivationModule } from './modules/activation/activation.module';
     LoyaltyModule,
     UserModule,
     ActivationModule,
+    ServiceModule,
+    DiscountModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, DiscountController],
+  providers: [AppService, DiscountService],
 })
 export class AppModule {}

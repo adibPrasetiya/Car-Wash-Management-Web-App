@@ -26,11 +26,15 @@ model Client {
 }
 
 model Vehicle {
-  id             Int             @id @default(autoincrement())
+  id             String          @id @default(cuid()) // Changed to String with cuid
   clientId       Int?
   client         Client?         @relation(fields: [clientId], references: [id])
-  plate          String?
-  type           String // "car" | "motorcycle"
+  plateNumber    String          // Changed from plate to plateNumber
+  vehicleType    String          // Changed from type to vehicleType: "car" | "motorcycle" | "truck"
+  brand          String?         // Added vehicle brand
+  model          String?         // Added vehicle model
+  year           Int?            // Added vehicle year
+  color          String?         // Added vehicle color
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   transactions   Transaction[]
@@ -52,9 +56,23 @@ model ServiceType {
   name        String
   description String?
   price       Decimal           @db.Decimal(10, 2)
+  isAvailable Boolean           @default(true)
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   items       TransactionItem[]
+}
+
+model Discount {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  type        String   // "percentage" | "fixed"
+  value       Decimal  @db.Decimal(10, 2)
+  isActive    Boolean  @default(true)
+  validFrom   DateTime @default(now())
+  validUntil  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Transaction {
@@ -64,10 +82,12 @@ model Transaction {
   client            Client?           @relation(fields: [clientId], references: [id])
   clientName        String            // Store client name for easier access
   clientType        String            // "U" = registered, "P" = guest
-  vehicleId         Int?
+  vehicleId         String?
   vehicle           Vehicle?          @relation(fields: [vehicleId], references: [id])
   vehicleType       String            // "car", "motorcycle", "truck"
   plateNumber       String?
+  vehicleBrand      String?           // Added vehicle brand for transactions
+  vehicleModel      String?           // Added vehicle model for transactions
   serviceType       String            // Description of service
   totalAmount       Decimal           @db.Decimal(10, 2)
   status            String            // "pending", "in_progress", "completed", "cancelled"
@@ -105,7 +125,7 @@ model LoyaltyRecord {
   id         Int      @id @default(autoincrement())
   clientId   Int?
   client     Client?  @relation(fields: [clientId], references: [id])
-  vehicleId  Int?
+  vehicleId  String?
   vehicle    Vehicle? @relation(fields: [vehicleId], references: [id])
   count      Int      @default(0)
   rewardType String // "discount" | "free" | null

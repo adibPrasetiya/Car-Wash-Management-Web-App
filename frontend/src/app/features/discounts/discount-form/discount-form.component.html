@@ -1,0 +1,245 @@
+<div class="discount-form-container">
+  <!-- Header -->
+  <div class="form-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="form-title">{{ getTitle() }}</h1>
+        <p class="form-subtitle">
+          {{ isEdit ? 'Update' : 'Create a new' }} discount offer
+        </p>
+      </div>
+      <button type="button" class="btn-back" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        Back to Discounts
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Loading discount details...</p>
+  </div>
+
+  <!-- Form -->
+  <div *ngIf="!isLoading" class="form-container">
+    <form (ngSubmit)="onSubmit()" class="discount-form">
+      <!-- Name Field -->
+      <div class="form-group">
+        <label for="name" class="form-label">
+          Discount Name *
+        </label>
+        <input
+          type="text"
+          id="name"
+          class="form-input"
+          [(ngModel)]="form.name"
+          name="name"
+          required
+          placeholder="Enter discount name"
+          [class.invalid]="form.name.trim().length === 0"
+        />
+        <div class="form-error" *ngIf="form.name.trim().length === 0">
+          Discount name is required
+        </div>
+      </div>
+
+      <!-- Description Field -->
+      <div class="form-group">
+        <label for="description" class="form-label">Description</label>
+        <textarea
+          id="description"
+          class="form-textarea"
+          [(ngModel)]="form.description"
+          name="description"
+          rows="3"
+          placeholder="Enter description (optional)"
+        ></textarea>
+        <div class="form-hint">
+          Provide details about this discount offer
+        </div>
+      </div>
+
+      <!-- Type Field -->
+      <div class="form-group">
+        <label class="form-label">Discount Type *</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input
+              type="radio"
+              id="percentage"
+              name="type"
+              value="percentage"
+              [(ngModel)]="form.type"
+              class="radio-input"
+            />
+            <label for="percentage" class="radio-label">
+              <span class="radio-circle"></span>
+              <div class="radio-content">
+                <div class="radio-title">Percentage</div>
+                <div class="radio-description">Discount as a percentage of total amount</div>
+              </div>
+            </label>
+          </div>
+          <div class="radio-option">
+            <input
+              type="radio"
+              id="fixed"
+              name="type"
+              value="fixed"
+              [(ngModel)]="form.type"
+              class="radio-input"
+            />
+            <label for="fixed" class="radio-label">
+              <span class="radio-circle"></span>
+              <div class="radio-content">
+                <div class="radio-title">Fixed Amount</div>
+                <div class="radio-description">Fixed amount discount in IDR</div>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Value Field -->
+      <div class="form-group">
+        <label for="value" class="form-label">
+          {{ form.type === 'percentage' ? 'Percentage' : 'Amount' }} *
+        </label>
+        <div class="value-input-wrapper">
+          <span class="value-symbol" *ngIf="form.type === 'fixed'">Rp</span>
+          <input
+            type="number"
+            id="value"
+            class="form-input value-input"
+            [(ngModel)]="form.value"
+            name="value"
+            required
+            min="0"
+            [max]="form.type === 'percentage' ? 100 : null"
+            [step]="form.type === 'percentage' ? 0.01 : 1000"
+            [placeholder]="form.type === 'percentage' ? '0.00' : '0'"
+            [class.invalid]="form.value <= 0 || (form.type === 'percentage' && form.value > 100)"
+          />
+          <span class="value-symbol" *ngIf="form.type === 'percentage'">%</span>
+        </div>
+        <div class="form-error" *ngIf="form.value <= 0">
+          {{ form.type === 'percentage' ? 'Percentage' : 'Amount' }} must be greater than 0
+        </div>
+        <div class="form-error" *ngIf="form.type === 'percentage' && form.value > 100">
+          Percentage cannot be greater than 100%
+        </div>
+      </div>
+
+      <!-- Status Field -->
+      <div class="form-group">
+        <label class="form-label">Discount Status</label>
+        <div class="toggle-wrapper">
+          <input
+            type="checkbox"
+            id="isActive"
+            class="toggle-input"
+            [(ngModel)]="form.isActive"
+            name="isActive"
+          />
+          <label for="isActive" class="toggle-label">
+            <span class="toggle-slider"></span>
+            <span class="toggle-text">
+              {{ form.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </label>
+        </div>
+        <div class="form-hint">
+          Toggle to make this discount {{ form.isActive ? 'inactive' : 'active' }}
+        </div>
+      </div>
+
+      <!-- Validity Period -->
+      <div class="form-row">
+        <!-- Valid From Field -->
+        <div class="form-group">
+          <label for="validFrom" class="form-label">Valid From *</label>
+          <input
+            type="date"
+            id="validFrom"
+            class="form-input"
+            [(ngModel)]="form.validFrom"
+            name="validFrom"
+            required
+            [class.invalid]="form.validFrom.length === 0"
+          />
+          <div class="form-error" *ngIf="form.validFrom.length === 0">
+            Valid from date is required
+          </div>
+        </div>
+
+        <!-- Valid Until Field -->
+        <div class="form-group">
+          <label for="validUntil" class="form-label">Valid Until</label>
+          <input
+            type="date"
+            id="validUntil"
+            class="form-input"
+            [(ngModel)]="form.validUntil"
+            name="validUntil"
+            [min]="form.validFrom"
+          />
+          <div class="form-hint">
+            Leave empty for no expiry date
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn-cancel"
+          (click)="goBack()"
+          [disabled]="isSubmitting"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn-submit"
+          [disabled]="!isFormValid() || isSubmitting"
+        >
+          <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+          <i class="fas fa-save" *ngIf="!isSubmitting"></i>
+          {{ isSubmitting ? 'Saving...' : (isEdit ? 'Update' : 'Create') }}
+        </button>
+      </div>
+    </form>
+
+    <!-- Form Preview -->
+    <div class="form-preview">
+      <h3 class="preview-title">Preview</h3>
+      <div class="preview-card">
+        <div class="preview-header">
+          <h4 class="preview-name">{{ form.name || 'Discount Name' }}</h4>
+          <span class="preview-value">{{ formatDiscountValue() }}</span>
+        </div>
+        <p class="preview-description">
+          {{ form.description || 'No description provided' }}
+        </p>
+        <div class="preview-details">
+          <div class="preview-item">
+            <span class="preview-label">Type:</span>
+            <span class="preview-text">{{ form.type === 'percentage' ? 'Percentage' : 'Fixed Amount' }}</span>
+          </div>
+          <div class="preview-item">
+            <span class="preview-label">Status:</span>
+            <span class="status-badge" [class]="form.isActive ? 'active' : 'inactive'">
+              {{ form.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+          <div class="preview-item">
+            <span class="preview-label">Validity:</span>
+            <span class="preview-text">{{ getValidityStatus() }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

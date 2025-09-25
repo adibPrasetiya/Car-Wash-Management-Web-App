@@ -61,6 +61,40 @@ export const routes: Routes = [
             loadComponent: () => import('./features/cashier/client/client-list/client-list.component').then(m => m.ClientListComponent)
           }
         ]
+      },
+      {
+        path: 'services',
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./features/services/service-list/service-list.component').then(m => m.ServiceListComponent)
+          },
+          {
+            path: 'new',
+            loadComponent: () => import('./features/services/service-form/service-form.component').then(m => m.ServiceFormComponent)
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () => import('./features/services/service-form/service-form.component').then(m => m.ServiceFormComponent)
+          }
+        ]
+      },
+      {
+        path: 'discounts',
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./features/discounts/discount-list/discount-list.component').then(m => m.DiscountListComponent)
+          },
+          {
+            path: 'new',
+            loadComponent: () => import('./features/discounts/discount-form/discount-form.component').then(m => m.DiscountFormComponent)
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () => import('./features/discounts/discount-form/discount-form.component').then(m => m.DiscountFormComponent)
+          }
+        ]
       }
     ]
   },

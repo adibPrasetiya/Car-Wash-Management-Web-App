@@ -1,0 +1,154 @@
+<div class="service-form-container">
+  <!-- Header -->
+  <div class="form-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="form-title">{{ getTitle() }}</h1>
+        <p class="form-subtitle">
+          {{ isEdit ? 'Update' : 'Create a new' }} service
+        </p>
+      </div>
+      <button type="button" class="btn-back" (click)="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        Back to Services
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Loading service details...</p>
+  </div>
+
+  <!-- Form -->
+  <div *ngIf="!isLoading" class="form-container">
+    <form (ngSubmit)="onSubmit()" class="service-form">
+      <!-- Name Field -->
+      <div class="form-group">
+        <label for="name" class="form-label">
+          Service Name *
+        </label>
+        <input
+          type="text"
+          id="name"
+          class="form-input"
+          [(ngModel)]="form.name"
+          name="name"
+          required
+          placeholder="Enter service name"
+          [class.invalid]="form.name.trim().length === 0"
+        />
+        <div class="form-error" *ngIf="form.name.trim().length === 0">
+          Service name is required
+        </div>
+      </div>
+
+      <!-- Description Field -->
+      <div class="form-group">
+        <label for="description" class="form-label">Description</label>
+        <textarea
+          id="description"
+          class="form-textarea"
+          [(ngModel)]="form.description"
+          name="description"
+          rows="4"
+          placeholder="Enter description (optional)"
+        ></textarea>
+        <div class="form-hint">
+          Provide a detailed description of what this service involves
+        </div>
+      </div>
+
+      <!-- Price Field -->
+      <div class="form-group">
+        <label for="price" class="form-label">Price *</label>
+        <div class="price-input-wrapper">
+          <span class="price-symbol">Rp</span>
+          <input
+            type="number"
+            id="price"
+            class="form-input price-input"
+            [(ngModel)]="form.price"
+            name="price"
+            required
+            min="0"
+            step="1000"
+            placeholder="0"
+            [class.invalid]="form.price <= 0"
+          />
+        </div>
+        <div class="form-error" *ngIf="form.price <= 0">
+          Price must be greater than 0
+        </div>
+      </div>
+
+      <!-- Status Field -->
+      <div class="form-group">
+        <label class="form-label">Service Status</label>
+        <div class="toggle-wrapper">
+          <input
+            type="checkbox"
+            id="isAvailable"
+            class="toggle-input"
+            [(ngModel)]="form.isAvailable"
+            name="isAvailable"
+          />
+          <label for="isAvailable" class="toggle-label">
+            <span class="toggle-slider"></span>
+            <span class="toggle-text">
+              {{ form.isAvailable ? 'Available' : 'Unavailable' }}
+            </span>
+          </label>
+        </div>
+        <div class="form-hint">
+          Toggle to make this service {{ form.isAvailable ? 'unavailable' : 'available' }} for booking
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn-cancel"
+          (click)="goBack()"
+          [disabled]="isSubmitting"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn-submit"
+          [disabled]="!isFormValid() || isSubmitting"
+        >
+          <i class="fas fa-spinner fa-spin" *ngIf="isSubmitting"></i>
+          <i class="fas fa-save" *ngIf="!isSubmitting"></i>
+          {{ isSubmitting ? 'Saving...' : (isEdit ? 'Update' : 'Create') }}
+        </button>
+      </div>
+    </form>
+
+    <!-- Form Preview -->
+    <div class="form-preview">
+      <h3 class="preview-title">Preview</h3>
+      <div class="preview-card">
+        <div class="preview-header">
+          <h4 class="preview-name">{{ form.name || 'Service Name' }}</h4>
+          <span class="preview-price">Rp {{ form.price.toLocaleString('id-ID') }}</span>
+        </div>
+        <p class="preview-description">
+          {{ form.description || 'No description provided' }}
+        </p>
+        <div class="preview-type">
+          <i class="fas fa-tag"></i>
+          Service
+        </div>
+        <div class="preview-status">
+          <span class="status-badge" [class]="form.isAvailable ? 'available' : 'unavailable'">
+            {{ form.isAvailable ? 'Available' : 'Unavailable' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

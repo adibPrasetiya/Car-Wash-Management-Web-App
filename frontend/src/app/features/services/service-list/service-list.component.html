@@ -1,0 +1,187 @@
+<div class="service-list-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-info">
+        <h1 class="page-title">Services</h1>
+        <p class="page-subtitle">Manage car wash services</p>
+      </div>
+      <button class="btn-primary" (click)="onAddService()">
+        <i class="fas fa-plus"></i>
+        New Service
+      </button>
+    </div>
+  </div>
+
+  <!-- Search Section -->
+  <div class="filters-section">
+    <div class="search-section">
+      <div class="search-input-wrapper">
+        <i class="fas fa-search search-icon"></i>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search by name or description..."
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          (input)="onSearch()"
+        />
+        <button
+          *ngIf="searchQuery"
+          class="clear-search-btn"
+          (click)="clearSearch()"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="loading-spinner"></div>
+    <p>Loading services...</p>
+  </div>
+
+  <!-- Services Table -->
+  <div *ngIf="!isLoading" class="services-table-container">
+    <div class="table-header">
+      <div class="table-info">
+        <h3 class="table-title">Services</h3>
+        <p class="table-subtitle">{{ totalCount }} total services</p>
+      </div>
+
+      <div class="page-size-selector">
+        <label for="pageSize">Show:</label>
+        <select
+          id="pageSize"
+          [(ngModel)]="pageSize"
+          (change)="onPageSizeChange()"
+        >
+          <option *ngFor="let size of pageSizeOptions" [value]="size">
+            {{ size }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="table-wrapper">
+      <!-- Services Table -->
+      <table class="services-table">
+        <thead>
+          <tr>
+            <th>Service Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Created Date</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let service of services; trackBy: trackById"
+          >
+            <td class="service-name">{{ service.name }}</td>
+            <td class="description">
+              {{ service.description || 'No description' }}
+            </td>
+            <td class="price">{{ formatCurrency(service.price) }}</td>
+            <td>
+              <span class="status-badge" [class]="service.isAvailable ? 'available' : 'unavailable'">
+                {{ service.isAvailable ? 'Available' : 'Unavailable' }}
+              </span>
+            </td>
+            <td>
+              <div class="date-info">
+                <div class="date">{{ formatDate(service.createdAt) }}</div>
+                <div class="time">{{ formatTime(service.createdAt) }}</div>
+              </div>
+            </td>
+            <td>
+              <div class="action-menu-container">
+                <button
+                  class="action-button"
+                  [class.active]="isActionMenuOpen(service.id)"
+                  (click)="toggleActionMenu(service.id, $event)"
+                >
+                  <i class="fas fa-ellipsis-h"></i>
+                </button>
+
+                <div
+                  class="action-menu"
+                  [class.show]="isActionMenuOpen(service.id)"
+                >
+                  <button
+                    class="action-menu-item"
+                    (click)="onEditService(service.id)"
+                  >
+                    <i class="fas fa-edit"></i>
+                    <span>Edit</span>
+                  </button>
+                  <div class="action-menu-divider"></div>
+                  <button
+                    class="action-menu-item danger"
+                    (click)="onDeleteService(service)"
+                  >
+                    <i class="fas fa-trash"></i>
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="services.length === 0" class="empty-state">
+        <div class="empty-icon">
+          <i class="fas fa-cogs"></i>
+        </div>
+        <h3 class="empty-title">No services found</h3>
+        <p class="empty-subtitle">Start by adding your first service</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container" *ngIf="services.length > 0">
+      <div class="pagination-info">
+        Showing {{ (currentPage - 1) * pageSize + 1 }} to
+        {{ Math.min(currentPage * pageSize, totalCount) }} of
+        {{ totalCount }} entries
+      </div>
+
+      <div class="pagination-controls">
+        <button
+          class="pagination-btn"
+          [disabled]="currentPage === 1"
+          (click)="onPageChange(currentPage - 1)"
+        >
+          <i class="fas fa-chevron-left"></i>
+          Previous
+        </button>
+
+        <div class="page-numbers">
+          <button
+            *ngFor="let page of getPageNumbers()"
+            class="page-number"
+            [class.active]="page === currentPage"
+            (click)="onPageChange(page)"
+          >
+            {{ page }}
+          </button>
+        </div>
+
+        <button
+          class="pagination-btn"
+          [disabled]="currentPage === totalPages"
+          (click)="onPageChange(currentPage + 1)"
+        >
+          Next
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

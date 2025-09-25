@@ -56,6 +56,18 @@ export class SidebarComponent implements OnInit {
       route: '/main/vehicles'
     },
     {
+      id: 'services',
+      label: 'Services',
+      icon: 'fas fa-cogs',
+      route: '/main/services'
+    },
+    {
+      id: 'discounts',
+      label: 'Discounts',
+      icon: 'fas fa-percentage',
+      route: '/main/discounts'
+    },
+    {
       id: 'cashier',
       label: 'Cashier',
       icon: 'fas fa-cash-register',

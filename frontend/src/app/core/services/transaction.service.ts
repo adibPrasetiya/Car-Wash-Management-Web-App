@@ -5,6 +5,7 @@ import { map } from 'rxjs/operators';
 import {
   Transaction,
   CreateTransactionRequest,
+  UpdateTransactionRequest,
   TransactionSearchParams,
   TransactionListResponse
 } from '../models/transaction.model';
@@ -24,10 +25,14 @@ export class TransactionService {
       id: '1',
       transactionId: 'TRX1212897bkasnnk0',
       transactionNumber: 'U0001',
+      clientId: 1,
       clientName: 'John Doe',
       clientType: 'U',
+      vehicleId: 'vehicle1',
       vehicleType: 'car',
       plateNumber: 'B1234ABC',
+      vehicleBrand: 'Toyota',
+      vehicleModel: 'Camry',
       serviceType: 'Cuci mobil sedan reguler',
       amount: 50000,
       status: 'completed',
@@ -42,10 +47,14 @@ export class TransactionService {
       id: '2',
       transactionId: 'TRX9876543mnbvcxz1',
       transactionNumber: 'U0002',
+      clientId: 2,
       clientName: 'Jane Smith',
       clientType: 'U',
+      vehicleId: 'vehicle2',
       vehicleType: 'car',
       plateNumber: 'B5678DEF',
+      vehicleBrand: 'Honda',
+      vehicleModel: 'CR-V',
       serviceType: 'Cuci mobil SUV premium + wax',
       amount: 120000,
       status: 'completed',
@@ -63,6 +72,8 @@ export class TransactionService {
       clientType: 'P',
       vehicleType: 'motorcycle',
       plateNumber: 'B9012GHI',
+      vehicleBrand: 'Yamaha',
+      vehicleModel: 'Vixion',
       serviceType: 'Cuci motor + detailing',
       amount: 35000,
       status: 'in_progress',
@@ -76,10 +87,14 @@ export class TransactionService {
       id: '4',
       transactionId: 'TRX7777888poiuyt56',
       transactionNumber: 'U0003',
+      clientId: 2,
       clientName: 'Maria Garcia',
       clientType: 'U',
+      vehicleId: 'vehicle3',
       vehicleType: 'car',
       plateNumber: 'B3456JKL',
+      vehicleBrand: 'Mazda',
+      vehicleModel: 'CX-5',
       serviceType: 'Cuci mobil hatchback + poles',
       amount: 80000,
       status: 'completed',
@@ -97,6 +112,8 @@ export class TransactionService {
       clientType: 'P',
       vehicleType: 'truck',
       plateNumber: 'B7890MNO',
+      vehicleBrand: 'Isuzu',
+      vehicleModel: 'D-Max',
       serviceType: 'Cuci pickup truck reguler',
       amount: 60000,
       status: 'pending',
@@ -110,10 +127,14 @@ export class TransactionService {
       id: '6',
       transactionId: 'TRX9999111zxcvbn90',
       transactionNumber: 'U0004',
+      clientId: 1,
       clientName: 'Siti Nurhaliza',
       clientType: 'U',
+      vehicleId: 'vehicle4',
       vehicleType: 'car',
       plateNumber: 'B1357PQR',
+      vehicleBrand: 'BMW',
+      vehicleModel: '320i',
       serviceType: 'Cuci mobil sedan premium',
       amount: 75000,
       status: 'pending',
@@ -134,8 +155,8 @@ export class TransactionService {
     if (params?.clientType) httpParams = httpParams.set('clientType', params.clientType);
     if (params?.page) httpParams = httpParams.set('page', params.page.toString());
     if (params?.size) httpParams = httpParams.set('size', params.size.toString());
-    if (params?.dateRange?.start) httpParams = httpParams.set('startDate', params.dateRange.start.toISOString());
-    if (params?.dateRange?.end) httpParams = httpParams.set('endDate', params.dateRange.end.toISOString());
+    if (params?.startDate) httpParams = httpParams.set('startDate', params.startDate);
+    if (params?.endDate) httpParams = httpParams.set('endDate', params.endDate);
 
     return this.http.get<TransactionListResponse>(`${this.apiUrl}/${cashierId}/transactions`, { params: httpParams })
       .pipe(
@@ -143,6 +164,7 @@ export class TransactionService {
           ...response,
           transactions: response.transactions.map(t => ({
             ...t,
+            amount: (t as any).totalAmount || t.amount,
             date: new Date(t.date),
             createdAt: new Date(t.createdAt),
             updatedAt: new Date(t.updatedAt)
@@ -156,6 +178,7 @@ export class TransactionService {
       .pipe(
         map(transaction => ({
           ...transaction,
+          amount: (transaction as any).totalAmount || transaction.amount,
           date: new Date(transaction.date),
           createdAt: new Date(transaction.createdAt),
           updatedAt: new Date(transaction.updatedAt)
@@ -164,10 +187,15 @@ export class TransactionService {
   }
 
   createTransaction(transactionData: CreateTransactionRequest): Observable<Transaction> {
-    return this.http.post<Transaction>(`${this.apiUrl}/${transactionData.cashierId}/transactions`, transactionData)
+    const backendData = {
+      ...transactionData,
+      totalAmount: transactionData.amount
+    };
+    return this.http.post<Transaction>(`${this.apiUrl}/${transactionData.cashierId}/transactions`, backendData)
       .pipe(
         map(transaction => ({
           ...transaction,
+          amount: (transaction as any).totalAmount || transaction.amount,
           date: new Date(transaction.date),
           createdAt: new Date(transaction.createdAt),
           updatedAt: new Date(transaction.updatedAt)
@@ -175,11 +203,16 @@ export class TransactionService {
       );
   }
 
-  updateTransaction(cashierId: string, transactionId: string, updates: Partial<Transaction>): Observable<Transaction | null> {
-    return this.http.patch<Transaction>(`${this.apiUrl}/${cashierId}/transactions/${transactionId}`, updates)
+  updateTransaction(cashierId: string, transactionId: string, updates: UpdateTransactionRequest): Observable<Transaction | null> {
+    const backendUpdates = {
+      ...updates,
+      ...(updates.amount && { totalAmount: updates.amount })
+    };
+    return this.http.patch<Transaction>(`${this.apiUrl}/${cashierId}/transactions/${transactionId}`, backendUpdates)
       .pipe(
         map(transaction => ({
           ...transaction,
+          amount: (transaction as any).totalAmount || transaction.amount,
           date: new Date(transaction.date),
           createdAt: new Date(transaction.createdAt),
           updatedAt: new Date(transaction.updatedAt)
@@ -192,6 +225,38 @@ export class TransactionService {
       .pipe(
         map(() => true)
       );
+  }
+
+  // Additional methods for transaction management
+
+  /**
+   * Get transactions by client ID (for registered clients)
+   */
+  getTransactionsByClientId(cashierId: string, clientId: string): Observable<Transaction[]> {
+    const params = new HttpParams().set('clientId', clientId);
+
+    return this.http.get<Transaction[]>(`${this.apiUrl}/${cashierId}/transactions/by-client`, { params })
+      .pipe(
+        map(transactions => transactions.map(t => ({
+          ...t,
+          amount: (t as any).totalAmount || t.amount,
+          date: new Date(t.date),
+          createdAt: new Date(t.createdAt),
+          updatedAt: new Date(t.updatedAt)
+        })))
+      );
+  }
+
+  /**
+   * Get transaction statistics for dashboard
+   */
+  getTransactionStats(cashierId: string, startDate?: string, endDate?: string): Observable<any> {
+    let params = new HttpParams();
+
+    if (startDate) params = params.set('startDate', startDate);
+    if (endDate) params = params.set('endDate', endDate);
+
+    return this.http.get<any>(`${this.apiUrl}/${cashierId}/transactions/stats`, { params });
   }
 
 }

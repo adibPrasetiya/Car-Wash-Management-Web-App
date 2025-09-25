@@ -1,4 +1,5 @@
 import { IsString, IsNotEmpty, IsNumber, IsOptional, IsIn, IsDateString } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateTransactionDto {
   @IsString()
@@ -40,7 +41,15 @@ export class CreateTransactionDto {
   clientId?: number;
 
   @IsOptional()
-  vehicleId?: number;
+  vehicleId?: string;
+
+  @IsString()
+  @IsOptional()
+  vehicleBrand?: string;
+
+  @IsString()
+  @IsOptional()
+  vehicleModel?: string;
 }
 
 export class UpdateTransactionDto {
@@ -89,12 +98,14 @@ export class TransactionSearchDto {
   @IsOptional()
   clientType?: string;
 
-  @IsNumber()
   @IsOptional()
+  @Transform(({ value }) => parseInt(value) || 1)
+  @IsNumber()
   page?: number;
 
-  @IsNumber()
   @IsOptional()
+  @Transform(({ value }) => parseInt(value) || 10)
+  @IsNumber()
   size?: number;
 
   @IsDateString()
@@ -111,8 +122,12 @@ export class TransactionResponseDto {
   transactionNumber: string;
   clientName: string;
   clientType: string;
+  clientId?: number;
+  vehicleId?: string;
   vehicleType: string;
   plateNumber?: string;
+  vehicleBrand?: string;
+  vehicleModel?: string;
   serviceType: string;
   totalAmount: number;
   status: string;

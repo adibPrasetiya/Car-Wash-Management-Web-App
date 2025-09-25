@@ -10,6 +10,7 @@ import { PrintService, TicketData } from '../../../../core/services/print.servic
 import { CreateTransactionRequest } from '../../../../core/models/transaction.model';
 import { OrderItem, Product, Order } from '../../../../core/models/order.model';
 import { Client, CreateClientRequest } from '../../../../core/models/client.model';
+import { Vehicle } from '../../../../core/models/vehicle.model';
 import { ClientFormComponent } from '../../client/client-form/client-form.component';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { Observable, of } from 'rxjs';
@@ -58,6 +59,10 @@ export class TransactionFormComponent implements OnInit {
   clientSearchQuery = '';
   isSearchingClients = false;
 
+  // Vehicle selection for registered clients
+  selectedVehicle: Vehicle | null = null;
+  availableVehicles: Vehicle[] = [];
+
   // Client registration modal
   showClientFormModal = false;
 
@@ -78,6 +83,8 @@ export class TransactionFormComponent implements OnInit {
       customerName: [''],
       vehicleType: ['car'],
       plateNumber: [''],
+      vehicleBrand: [''],
+      vehicleModel: [''],
       phoneNumber: [''],
       discount: [0, [Validators.min(0)]],
       notes: ['']
@@ -277,6 +284,11 @@ export class TransactionFormComponent implements OnInit {
       return;
     }
 
+    // Validate required fields
+    if (!this.validateTransactionData()) {
+      return;
+    }
+
     this.isSubmitting = true;
 
     // Convert order to transaction format
@@ -286,10 +298,14 @@ export class TransactionFormComponent implements OnInit {
     ).join(', ');
 
     const transactionData: CreateTransactionRequest = {
+      clientId: this.selectedClient?.id,
       clientName: formValue.customerName || 'Walk-in Customer',
       clientType: this.selectedClientType === 'registered' ? 'U' : 'P',
+      vehicleId: this.selectedVehicle?.id,
       vehicleType: formValue.vehicleType,
-      plateNumber: formValue.plateNumber || '',
+      plateNumber: formValue.plateNumber || undefined, // Make optional for backend
+      vehicleBrand: formValue.vehicleBrand || this.selectedVehicle?.brand,
+      vehicleModel: formValue.vehicleModel || this.selectedVehicle?.model,
       serviceType: serviceDescription,
       amount: this.total,
       cashierId: 'cashier1',
@@ -362,7 +378,7 @@ export class TransactionFormComponent implements OnInit {
   }
 
   // Helper method untuk mendapatkan text jenis kendaraan
-  private getVehicleTypeText(vehicleType: string): string {
+  getVehicleTypeText(vehicleType: string): string {
     const types: { [key: string]: string } = {
       'car': 'Mobil',
       'motorcycle': 'Motor',
@@ -431,6 +447,8 @@ export class TransactionFormComponent implements OnInit {
   selectClientType(type: 'guest' | 'registered'): void {
     this.selectedClientType = type;
     this.selectedClient = null;
+    this.selectedVehicle = null;
+    this.availableVehicles = [];
     this.clientSearchResults = [];
     this.orderForm.get('clientSearchQuery')?.setValue('');
 
@@ -441,6 +459,8 @@ export class TransactionFormComponent implements OnInit {
         customerName: '',
         vehicleType: 'car',
         plateNumber: '',
+        vehicleBrand: '',
+        vehicleModel: '',
         phoneNumber: ''
       });
     }
@@ -452,24 +472,33 @@ export class TransactionFormComponent implements OnInit {
 
   selectClient(client: Client): void {
     this.selectedClient = client;
+    this.availableVehicles = client.vehicles || [];
+    this.selectedVehicle = null;
     this.clientSearchResults = [];
+
     this.orderForm.patchValue({
       customerId: client.id,
       customerName: client.name,
-      vehicleType: client.vehicleType,
-      plateNumber: client.plateNumber,
-      phoneNumber: client.phone
+      phoneNumber: client.phone,
+      vehicleType: '',
+      plateNumber: '',
+      vehicleBrand: '',
+      vehicleModel: ''
     });
     this.orderForm.get('clientSearchQuery')?.setValue('');
   }
 
   clearSelectedClient(): void {
     this.selectedClient = null;
+    this.selectedVehicle = null;
+    this.availableVehicles = [];
     this.orderForm.patchValue({
       customerId: '',
       customerName: '',
       vehicleType: 'car',
       plateNumber: '',
+      vehicleBrand: '',
+      vehicleModel: '',
       phoneNumber: ''
     });
   }
@@ -487,8 +516,73 @@ export class TransactionFormComponent implements OnInit {
     this.selectedClientType = 'registered';
   }
 
+  // Vehicle selection methods
+  selectVehicle(vehicle: Vehicle): void {
+    this.selectedVehicle = vehicle;
+    this.orderForm.patchValue({
+      vehicleType: vehicle.vehicleType,
+      plateNumber: vehicle.plateNumber,
+      vehicleBrand: vehicle.brand || '',
+      vehicleModel: vehicle.model || ''
+    });
+  }
+
+  clearSelectedVehicle(): void {
+    this.selectedVehicle = null;
+    this.orderForm.patchValue({
+      vehicleType: 'car',
+      plateNumber: '',
+      vehicleBrand: '',
+      vehicleModel: ''
+    });
+  }
+
+  getVehicleDisplayText(vehicle: Vehicle): string {
+    const brand = vehicle.brand ? `${vehicle.brand} ` : '';
+    const model = vehicle.model ? `${vehicle.model} ` : '';
+    const type = this.getVehicleTypeText(vehicle.vehicleType);
+    return `${vehicle.plateNumber} - ${brand}${model}(${type})`;
+  }
+
+  getVehicleTypeIcon(vehicleType: string): string {
+    const icons: { [key: string]: string } = {
+      'car': 'fas fa-car',
+      'motorcycle': 'fas fa-motorcycle',
+      'truck': 'fas fa-truck'
+    };
+    return icons[vehicleType] || 'fas fa-car';
+  }
+
   editClient(client: Client): void {
     this.toastrService.info('Edit client feature coming soon');
+  }
+
+  private validateTransactionData(): boolean {
+    const formValue = this.orderForm.value;
+
+    // Validate customer name for guest clients
+    if (this.selectedClientType === 'guest') {
+      if (!formValue.customerName?.trim()) {
+        this.toastrService.error('Nama customer harus diisi');
+        return false;
+      }
+    }
+
+    // Validate vehicle type
+    if (!formValue.vehicleType) {
+      this.toastrService.error('Jenis kendaraan harus dipilih');
+      return false;
+    }
+
+    // Validate plate number (optional but recommended)
+    if (!formValue.plateNumber?.trim() && this.selectedClientType === 'guest') {
+      const confirmWithoutPlate = confirm('Lanjutkan tanpa nomor plat kendaraan?');
+      if (!confirmWithoutPlate) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   private markFormGroupTouched(): void {
@@ -541,8 +635,8 @@ export class TransactionFormComponent implements OnInit {
   }
 
   // Get client type text
-  getClientTypeText(clientType: string): string {
-    return clientType === 'U' ? 'Registered' : 'Guest';
+  getClientTypeText(clientType?: string): string {
+    return clientType === 'U' ? 'Registered' : clientType === 'P' ? 'Guest' : 'Unknown';
   }
 
   // TrackBy function for ngFor

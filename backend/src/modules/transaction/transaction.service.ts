@@ -28,12 +28,12 @@ export class TransactionService {
 
     // Apply search filter
     if (searchParams?.search) {
-      const searchTerm = searchParams.search.toLowerCase();
+      const searchTerm = searchParams.search;
       whereClause.OR = [
-        { transactionNumber: { contains: searchTerm, mode: 'insensitive' } },
-        { transactionId: { contains: searchTerm, mode: 'insensitive' } },
-        { plateNumber: { contains: searchTerm, mode: 'insensitive' } },
-        { clientName: { contains: searchTerm, mode: 'insensitive' } },
+        { transactionNumber: { contains: searchTerm } },
+        { transactionId: { contains: searchTerm } },
+        { plateNumber: { contains: searchTerm } },
+        { clientName: { contains: searchTerm } },
       ];
     }
 
@@ -177,8 +177,12 @@ export class TransactionService {
       transactionNumber: transaction.transactionNumber,
       clientName: transaction.clientName,
       clientType: transaction.clientType,
+      clientId: transaction.clientId,
+      vehicleId: transaction.vehicleId,
       vehicleType: transaction.vehicleType,
       plateNumber: transaction.plateNumber,
+      vehicleBrand: transaction.vehicleBrand,
+      vehicleModel: transaction.vehicleModel,
       serviceType: transaction.serviceType,
       totalAmount: Number(transaction.totalAmount),
       status: transaction.status,

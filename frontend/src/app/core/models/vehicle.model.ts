@@ -18,4 +18,6 @@ export interface CreateVehicleRequest {
   vehicleType: 'car' | 'motorcycle' | 'truck';
   brand?: string;
   model?: string;
+  year?: number;
+  color?: string;
 }

@@ -36,7 +36,7 @@ export class ClientListComponent implements OnInit {
   isStatusDropdownOpen = false;
 
   // Action menus
-  activeActionMenu: string | null = null;
+  activeActionMenu: number | null = null;
 
   // Client registration modal
   showClientFormModal = false;
@@ -142,7 +142,7 @@ export class ClientListComponent implements OnInit {
   }
 
   // Action methods
-  toggleActionMenu(clientId: string): void {
+  toggleActionMenu(clientId: number): void {
     this.activeActionMenu = this.activeActionMenu === clientId ? null : clientId;
   }
 
@@ -210,8 +210,8 @@ export class ClientListComponent implements OnInit {
     return vehicles.map(v => `${v.plateNumber} (${this.getVehicleTypeText(v.vehicleType)})`).join('\n');
   }
 
-  getClientTypeText(clientType: string): string {
-    return clientType === 'U' ? 'Registered' : 'Guest';
+  getClientTypeText(clientType?: string): string {
+    return clientType === 'U' ? 'Registered' : clientType === 'P' ? 'Guest' : 'Unknown';
   }
 
   getLoyaltyRank(totalTransactions: number): { rank: string, color: string } {
@@ -255,7 +255,7 @@ export class ClientListComponent implements OnInit {
   }
 
   // TrackBy function for ngFor
-  trackByClientId(index: number, client: Client): string {
+  trackByClientId(index: number, client: Client): number {
     return client.id;
   }
 

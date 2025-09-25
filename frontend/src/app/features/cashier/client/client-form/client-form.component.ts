@@ -133,12 +133,13 @@ export class ClientFormComponent implements OnInit {
         name: formValue.name,
         phone: formValue.phone,
         email: formValue.email || undefined,
-        type: 'U', // Registered user
         vehicles: formValue.vehicles.map((vehicle: any) => ({
           plateNumber: vehicle.plateNumber,
           vehicleType: vehicle.vehicleType,
           brand: vehicle.brand || undefined,
-          model: vehicle.model || undefined
+          model: vehicle.model || undefined,
+          year: vehicle.year || undefined,
+          color: vehicle.color || undefined
         } as CreateVehicleRequest))
       };
 
